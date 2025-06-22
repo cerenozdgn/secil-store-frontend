@@ -17,10 +17,10 @@ export default function Sidebar() {
       {/* Logo */}
       <div className='mb-16'>
         <Image
-          src='https://flowbite.com/docs/images/logo.svg'
+          src='/secil-store-seeklogo.png'
           alt='Logo'
-          width={50}
-          height={50}
+          width={150}
+          height={150}
           className='dark:invert'
         />
       </div>

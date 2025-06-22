@@ -33,7 +33,6 @@ export default function CollectionsPage() {
             },
           }
         );
-
         const data = await res.json();
         if (res.ok) {
           setCollections(data.data || []);
@@ -43,11 +42,8 @@ export default function CollectionsPage() {
         console.error("Sunucu hatası:", err);
       }
     };
-
-    if (session?.accessToken) {
-      fetchCollections();
-    }
-  }, [session, page]);
+    if (session?.accessToken) fetchCollections();
+  }, [session, page, setCollections, setTotalPages]);
 
   if (status === "loading") return <div className='p-4'>Yükleniyor...</div>;
   if (status === "unauthenticated") {
@@ -56,12 +52,48 @@ export default function CollectionsPage() {
   }
 
   return (
-    <div className='p-8'>
+    <div className='p-4 md:p-8'>
       <h1 className='text-2xl font-bold mb-2'>Koleksiyon</h1>
       <p className='text-gray-600 mb-6'>Koleksiyon Listesi</p>
 
-      <div className='relative overflow-x-auto shadow-md sm:rounded-lg'>
-        <table className='w-full text-sm text-left text-gray-500 dark:text-gray-400'>
+      {/* Mobile / Tablet: Card View */}
+      <div className='grid gap-4 sm:hidden'>
+        {collections.map((col) => (
+          <div
+            key={col.id}
+            className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow'
+          >
+            <div className='flex justify-between items-start mb-2'>
+              <div>
+                <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
+                  {col.info.name}
+                </h3>
+                <p className='text-sm text-gray-600 dark:text-gray-400'>
+                  {col.salesChannel || "Satış Kanalı - X"}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedCollectionId(col.id);
+                  router.push("/edit");
+                }}
+                className='p-2 text-blue-600 dark:text-blue-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded'
+                title='Sabitleri Düzenle'
+              >
+                <BsFillPencilFill size={20} />
+              </button>
+            </div>
+            <div
+              className='text-sm text-gray-700 dark:text-gray-300'
+              dangerouslySetInnerHTML={{ __html: col.info.description }}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop / Tablet Above sm: Table View */}
+      <div className='hidden sm:block relative overflow-x-auto shadow-md sm:rounded-lg'>
+        <table className='min-w-full table-auto text-sm text-left text-gray-500 dark:text-gray-400'>
           <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
             <tr>
               <th scope='col' className='px-6 py-3'>
@@ -116,36 +148,34 @@ export default function CollectionsPage() {
       </div>
 
       {/* Pagination */}
-      <div className='flex justify-end mt-6'>
-        <nav className='flex items-center space-x-1 text-sm'>
+      <div className='flex justify-center sm:justify-end mt-6 space-x-1 text-sm'>
+        <button
+          onClick={() => setPage(Math.max(page - 1, 1))}
+          disabled={page === 1}
+          className='px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50'
+        >
+          &lt;
+        </button>
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
           <button
-            onClick={() => setPage(Math.max(page - 1, 1))}
-            disabled={page === 1}
-            className='px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50'
+            key={n}
+            onClick={() => setPage(n)}
+            className={`px-3 py-1 rounded ${
+              n === page
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700"
+            }`}
           >
-            &lt;
+            {n}
           </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-            <button
-              key={n}
-              onClick={() => setPage(n)}
-              className={`px-3 py-1 rounded ${
-                n === page
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700"
-              }`}
-            >
-              {n}
-            </button>
-          ))}
-          <button
-            onClick={() => setPage(Math.min(page + 1, totalPages))}
-            disabled={page === totalPages}
-            className='px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50'
-          >
-            &gt;
-          </button>
-        </nav>
+        ))}
+        <button
+          onClick={() => setPage(Math.min(page + 1, totalPages))}
+          disabled={page === totalPages}
+          className='px-3 py-1 rounded bg-gray-200 text-gray-700 disabled:opacity-50'
+        >
+          &gt;
+        </button>
       </div>
     </div>
   );

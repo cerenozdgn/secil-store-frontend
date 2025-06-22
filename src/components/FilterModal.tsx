@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Dialog } from "@headlessui/react";
@@ -33,13 +32,13 @@ export default function FilterModal({
   const [productCode, setProductCode] = useState<string>("");
   const [sortOption, setSortOption] = useState<string>("");
 
-  const { setFilters, setPage } = useFilterStore();
+  const { setFilters, setPage, removeFilter } = useFilterStore();
   const { data: session } = useSession();
   const collectionId = useCollectionStore(
     (state) => state.selectedCollectionId
   );
 
-  // API'den filtre verilerini çekiyoruz
+  // API'den filtre verilerini çek
   useEffect(() => {
     if (!isOpen || !session?.accessToken || !collectionId) return;
     fetch(
@@ -70,7 +69,7 @@ export default function FilterModal({
       return { ...prev, [selectedHeader]: [...arr, val] };
     });
   };
-  // Filtre etiketlerinden silme
+  // Tekil filtre sil
   const handleRemove = (hdr: string, val: string) => {
     setSelectedFilters((prev) => {
       const updated = prev[hdr].filter((v) => v !== val);
@@ -79,11 +78,12 @@ export default function FilterModal({
       else delete copy[hdr];
       return copy;
     });
+    const id = filtersData.find((f) => f.title === hdr)?.id;
+    if (id) removeFilter(id, val);
   };
 
   // Uygula
   const handleApply = () => {
-    // Genel filtreler
     const general = Object.entries(selectedFilters).flatMap(([hdr, vals]) =>
       vals.map((v) => ({
         id: filtersData.find((f) => f.title === hdr)?.id || "",
@@ -92,7 +92,6 @@ export default function FilterModal({
           filtersData.find((f) => f.title === hdr)?.comparisonType ?? 0,
       }))
     );
-    // Depo filtresi
     const warehouseF = selectedWarehouse
       ? [
           {
@@ -104,16 +103,15 @@ export default function FilterModal({
           },
         ]
       : [];
-    // Stok filtresi (min & max)
     const stockF: any[] = [];
     if (minStock)
       stockF.push({ id: "stock", value: minStock, comparisonType: 3 });
     if (maxStock)
       stockF.push({ id: "stock", value: maxStock, comparisonType: 2 });
-    // Ürün kodu
     const codeF = productCode
       ? [{ id: "productCode", value: productCode, comparisonType: 0 }]
       : [];
+
     setFilters([...general, ...warehouseF, ...stockF, ...codeF]);
     setPage(1);
     onClose();
@@ -131,7 +129,6 @@ export default function FilterModal({
     setPage(1);
   };
 
- 
   const generalHeaders = filtersData.filter(
     (f) => f.id !== "warehouse" && f.id !== "stock"
   );
@@ -139,8 +136,6 @@ export default function FilterModal({
     filtersData.find((f) => f.title === selectedHeader)?.values || [];
   const warehouseValues =
     filtersData.find((f) => f.id === "warehouse")?.values || [];
-  const stockComparisons =
-    filtersData.find((f) => f.id === "stock")?.values || [];
 
   return (
     <Dialog open={isOpen} onClose={onClose} className='relative z-50'>
@@ -233,7 +228,6 @@ export default function FilterModal({
                 value={productCode}
                 onChange={(e) => setProductCode(e.target.value)}
               />
-              {/* boşluk */}
               <div className='h-12' />
             </div>
 
@@ -249,51 +243,141 @@ export default function FilterModal({
                 <option value='asc'>Artan</option>
                 <option value='desc'>Azalan</option>
               </select>
-            
               <div className='h-12' />
             </div>
           </div>
 
           {/* Uygulanan Kriterler */}
+          {/* Uygulanan Kriterler */}
           <div>
             <label className='font-medium'>Uygulanan Kriterler</label>
-            <div className='mt-2 h-24 border rounded p-2 overflow-auto bg-gray-50'>
+            <div className='mt-2 h-auto min-h-[2rem] border rounded p-2 bg-gray-50'>
+              {/* hiç filtre yoksa */}
               {Object.entries(selectedFilters).length === 0 &&
               !selectedWarehouse &&
               !minStock &&
               !maxStock &&
+              !allSizes &&
               !productCode ? (
                 <p className='text-gray-500'>Henüz kriter seçilmedi.</p>
               ) : (
-                <ul className='list-disc list-inside space-y-1 text-sm'>
+                <div className='flex flex-wrap gap-2'>
+                  {/* Genel filtreler */}
                   {Object.entries(selectedFilters).flatMap(([hdr, vals]) =>
-                    vals.map((v) => (
-                      <li key={hdr + v}>
-                        {hdr}:{" "}
-                        {
-                          filtersData
-                            .find((f) => f.title === hdr)
-                            ?.values.find((o) => o.value === v)?.valueName
-                        }
-                      </li>
-                    ))
+                    vals.map((v) => {
+                      const label =
+                        filtersData
+                          .find((f) => f.title === hdr)
+                          ?.values.find((o) => o.value === v)?.valueName || v;
+                      return (
+                        <span
+                          key={hdr + v}
+                          className='group inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-medium'
+                        >
+                          <span>
+                            {hdr}: {label}
+                          </span>
+                          <button
+                            type='button'
+                            onClick={() => handleRemove(hdr, v)}
+                            className='hidden group-hover:inline-flex ml-2 text-gray-500 hover:text-gray-700'
+                          >
+                            ×
+                          </button>
+                        </span>
+                      );
+                    })
                   )}
+
+                  {/* Depo */}
                   {selectedWarehouse && (
-                    <li>
-                      Depo:{" "}
-                      {
-                        warehouseValues.find(
-                          (w) => w.value === selectedWarehouse
-                        )?.valueName
-                      }
-                    </li>
+                    <span className='group inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-medium'>
+                      <span>
+                        Depo:{" "}
+                        {
+                          warehouseValues.find(
+                            (w) => w.value === selectedWarehouse
+                          )?.valueName
+                        }
+                      </span>
+                      <button
+                        type='button'
+                        onClick={() => {
+                          setSelectedWarehouse("");
+                          removeFilter("warehouse", selectedWarehouse);
+                        }}
+                        className='hidden group-hover:inline-flex ml-2 text-gray-500 hover:text-gray-700'
+                      >
+                        ×
+                      </button>
+                    </span>
                   )}
-                  {minStock && <li>Min Stok: {minStock}</li>}
-                  {maxStock && <li>Max Stok: {maxStock}</li>}
-                  {allSizes && <li>Tüm bedenlerinde stok olanlar</li>}
-                  {productCode && <li>Ürün Kodu: {productCode}</li>}
-                
-                </ul>
+
+                  {/* Min Stok */}
+                  {minStock && (
+                    <span className='group inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-medium'>
+                      <span>Min Stok: {minStock}</span>
+                      <button
+                        type='button'
+                        onClick={() => {
+                          setMinStock("");
+                          removeFilter("stock", minStock);
+                        }}
+                        className='hidden group-hover:inline-flex ml-2 text-gray-500 hover:text-gray-700'
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+
+                  {/* Max Stok */}
+                  {maxStock && (
+                    <span className='group inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-medium'>
+                      <span>Max Stok: {maxStock}</span>
+                      <button
+                        type='button'
+                        onClick={() => {
+                          setMaxStock("");
+                          removeFilter("stock", maxStock);
+                        }}
+                        className='hidden group-hover:inline-flex ml-2 text-gray-500 hover:text-gray-700'
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+
+                  {/* Tüm bedenler */}
+                  {allSizes && (
+                    <span className='group inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-medium'>
+                      <span>Tüm bedenlerinde stok</span>
+                      <button
+                        type='button'
+                        onClick={() => setAllSizes(false)}
+                        className='hidden group-hover:inline-flex ml-2 text-gray-500 hover:text-gray-700'
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+
+                  {/* Ürün Kodu */}
+                  {productCode && (
+                    <span className='group inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-medium'>
+                      <span>Ürün Kodu: {productCode}</span>
+                      <button
+                        type='button'
+                        onClick={() => {
+                          setProductCode("");
+                          removeFilter("productCode", productCode);
+                        }}
+                        className='hidden group-hover:inline-flex ml-2 text-gray-500 hover:text-gray-700'
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           </div>

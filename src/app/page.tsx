@@ -52,10 +52,10 @@ export default function LoginPage() {
         className='bg-white p-8 rounded shadow-md w-96 space-y-4'
       >
         <div className='flex justify-center'>
-          <Image src='https://flowbite.com/docs/images/logo.svg' alt='Logo' width={50} height={50} />
+          <Image src='/secil-store-seeklogo.png' alt='Logo' width={150} height={150} />
         </div>
 
-        <h2 className='text-2xl font-semibold text-center'>Giriş Yap</h2>
+        <h2 className='text-l font-semibold text-center'>Giriş Yap</h2>
 
         <input
           type='email'

@@ -35,9 +35,10 @@ export const useFilterStore = create<FilterStore>((set) => ({
 
   removeFilter: (id, value) =>
     set((state) => ({
-      filters: state.filters.filter(
-        (f) => f.id !== id || (value !== undefined && f.value !== value)
+      filters: state.filters.filter((f) =>
+        value !== undefined ? !(f.id === id && f.value === value) : f.id !== id
       ),
+      page: 1,
     })),
 
   clearFilters: () => set({ filters: [] }),

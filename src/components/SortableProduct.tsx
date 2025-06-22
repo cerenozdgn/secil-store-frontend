@@ -26,9 +26,9 @@ export default function SortableProduct({ product }: { product: Product }) {
       <img
         src={product.imageUrl}
         alt={product.productCode}
-        className='w-full h-32 object-cover rounded'
+        className='w-full h-60 object-contain rounded'
       />
-      <p className='text-sm mt-2'>{product.productCode}</p>
+      <p className='text-sm text-center mt-2'>{product.productCode}</p>
     </div>
   );
 }
