@@ -4,53 +4,58 @@ Bu proje, koleksiyon yönetimi ve kullanıcı kimlik doğrulama süreçlerini ko
 
 ## ✨ Teknolojiler
 
-- _Next.js 15_ – Uygulama iskeleti ve yönlendirme
-- _TypeScript_ – Tür güvenliği
-- _Tailwind CSS_ – Hızlı ve özelleştirilebilir stil katmanı
-- _NextAuth.js_ – Kimlik doğrulama
-- _Zustand_ – Global state yönetimi
-- _Docker Compose_ – Geliştirme ortamı konteynerleştirme
+- **Next.js 15** – Uygulama iskeleti ve yönlendirme
+- **TypeScript** – Tür güvenliği
+- **Tailwind CSS** – Hızlı ve özelleştirilebilir stil katmanı
+- **NextAuth.js** – Kimlik doğrulama
+- **Zustand** – Global state yönetimi
+- **Docker Compose** – Geliştirme ortamı konteynerleştirme
 
 ## 🚀 Kurulum (Local Development)
 
-### 1. Depoyu klonlayın
+Aşağıdaki adımları izleyerek projeyi yerel bilgisayarınızda çalıştırabilirsiniz.
 
-bash
-git clone <repo-link>
-cd secil-store-frontend-main
+1. Depoyu klonlayın
+   ```bash
+   git clone <repo-link>
+   cd secil-store-frontend
+   ```
 
 ### 2. Gerekli paketleri kurun
 
-bash
+````bash
 npm install
+
 
 ### 3. Ortam değişkenlerini tanımlayın
 
 Proje dizininde .env.local adlı bir dosya oluşturun ve aşağıdaki şablonu doldurun:
 
-env
+```env
 NEXTAUTH_SECRET=your-secret-key
 NEXTAUTH_URL=http://localhost:3000
 
 ### 4. Geliştirme sunucusunu başlatın
 
-bash
+```bash
 npm run dev
 
 Tarayıcınızda [http://localhost:3000](http://localhost:3000) adresine gidin.
 
 ## 🛠️ Docker ile Çalıştırma
 
-bash
-docker-compose up --build
+```bash
+docker-compose up
 
 > Docker konteyneri ayağa kalktıktan sonra [http://localhost:3000](http://localhost:3000) üzerinden uygulamaya erişebilirsiniz.
 
 ## 📋 Klasör Yapısı
 
 src/
-app/ # Sayfalar ve layout yapısı
-components/ # UI bileşenleri
-lib/ # Zustand store'ları ve yardımcılar
-types/ # TypeScript tip tanımları
-public/ # Statik dosyalar
+├── app/         # Sayfalar ve layout yapısı
+├── components/  # Tekrarlanabilir UI bileşenleri
+├── lib/         # Zustand store’ları ve yardımcı fonksiyonlar
+├── types/       # TypeScript tip tanımları
+└── public/      # Statik dosyalar (resimler, favicon vb.)
+
+````
