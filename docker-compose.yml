@@ -1,5 +1,5 @@
 services:
-  secil-store:
+  secil-store-service:
     build:
       context: .
       dockerfile: Dockerfile

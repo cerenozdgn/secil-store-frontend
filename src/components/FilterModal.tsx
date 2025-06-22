@@ -1,3 +1,4 @@
+// components/FilterModal.tsx
 "use client";
 
 import { Dialog } from "@headlessui/react";
@@ -25,15 +26,22 @@ export default function FilterModal({
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string[]>
   >({});
+  const [selectedWarehouse, setSelectedWarehouse] = useState<string>("");
+  const [minStock, setMinStock] = useState<string>("");
+  const [maxStock, setMaxStock] = useState<string>("");
+  const [allSizes, setAllSizes] = useState<boolean>(false);
+  const [productCode, setProductCode] = useState<string>("");
+  const [sortOption, setSortOption] = useState<string>("");
+
   const { setFilters, setPage } = useFilterStore();
   const { data: session } = useSession();
   const collectionId = useCollectionStore(
     (state) => state.selectedCollectionId
   );
 
+  // API'den filtre verilerini çekiyoruz
   useEffect(() => {
     if (!isOpen || !session?.accessToken || !collectionId) return;
-
     fetch(
       `https://maestro-api-dev.secil.biz/Collection/${collectionId}/GetFiltersForConstants`,
       {
@@ -48,139 +56,261 @@ export default function FilterModal({
       .catch((err) => console.error("Filtre çekme hatası:", err));
   }, [isOpen, session, collectionId]);
 
+  // Filtre başlığı seçimi
   const handleHeaderSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedHeader(e.target.value);
   };
-
+  // Filtre değeri seçimi
   const handleValueSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    if (!selectedHeader || !value) return;
-
+    const val = e.target.value;
+    if (!selectedHeader || !val) return;
     setSelectedFilters((prev) => {
-      const existing = prev[selectedHeader] || [];
-      if (existing.includes(value)) return prev;
-      return {
-        ...prev,
-        [selectedHeader]: [...existing, value],
-      };
+      const arr = prev[selectedHeader] || [];
+      if (arr.includes(val)) return prev;
+      return { ...prev, [selectedHeader]: [...arr, val] };
+    });
+  };
+  // Filtre etiketlerinden silme
+  const handleRemove = (hdr: string, val: string) => {
+    setSelectedFilters((prev) => {
+      const updated = prev[hdr].filter((v) => v !== val);
+      const copy = { ...prev };
+      if (updated.length) copy[hdr] = updated;
+      else delete copy[hdr];
+      return copy;
     });
   };
 
-  const handleRemove = (header: string, value: string) => {
-    setSelectedFilters((prev) => {
-      const updated = prev[header].filter((v) => v !== value);
-      const newFilters = { ...prev };
-      if (updated.length === 0) {
-        delete newFilters[header];
-      } else {
-        newFilters[header] = updated;
-      }
-      return newFilters;
-    });
-  };
-
+  // Uygula
   const handleApply = () => {
-    const formatted = Object.entries(selectedFilters).flatMap(([key, values]) =>
-      values.map((val) => ({
-        id: filtersData.find((f) => f.title === key)?.id || "",
-        value: val,
+    // Genel filtreler
+    const general = Object.entries(selectedFilters).flatMap(([hdr, vals]) =>
+      vals.map((v) => ({
+        id: filtersData.find((f) => f.title === hdr)?.id || "",
+        value: v,
         comparisonType:
-          filtersData.find((f) => f.title === key)?.comparisonType ?? 0,
+          filtersData.find((f) => f.title === hdr)?.comparisonType ?? 0,
       }))
     );
-
-    setFilters(formatted);
+    // Depo filtresi
+    const warehouseF = selectedWarehouse
+      ? [
+          {
+            id: "warehouse",
+            value: selectedWarehouse,
+            comparisonType:
+              filtersData.find((f) => f.id === "warehouse")?.comparisonType ??
+              0,
+          },
+        ]
+      : [];
+    // Stok filtresi (min & max)
+    const stockF: any[] = [];
+    if (minStock)
+      stockF.push({ id: "stock", value: minStock, comparisonType: 3 });
+    if (maxStock)
+      stockF.push({ id: "stock", value: maxStock, comparisonType: 2 });
+    // Ürün kodu
+    const codeF = productCode
+      ? [{ id: "productCode", value: productCode, comparisonType: 0 }]
+      : [];
+    setFilters([...general, ...warehouseF, ...stockF, ...codeF]);
     setPage(1);
     onClose();
   };
-
+  // Temizle
   const handleClear = () => {
     setSelectedFilters({});
+    setSelectedWarehouse("");
+    setMinStock("");
+    setMaxStock("");
+    setAllSizes(false);
+    setProductCode("");
+    setSortOption("");
     setFilters([]);
     setPage(1);
   };
 
-  const currentOptions =
+  // Genel filtre başlıkları (stok/depo hariç)
+  const generalHeaders = filtersData.filter(
+    (f) => f.id !== "warehouse" && f.id !== "stock"
+  );
+  const currentValues =
     filtersData.find((f) => f.title === selectedHeader)?.values || [];
+  const warehouseValues =
+    filtersData.find((f) => f.id === "warehouse")?.values || [];
+  const stockComparisons =
+    filtersData.find((f) => f.id === "stock")?.values || [];
 
   return (
     <Dialog open={isOpen} onClose={onClose} className='relative z-50'>
       <div className='fixed inset-0 bg-black/30' aria-hidden='true' />
       <div className='fixed inset-0 flex items-center justify-center p-4'>
-        <Dialog.Panel className='w-full max-w-3xl bg-white p-6 rounded-lg space-y-6'>
-          <Dialog.Title className='text-lg font-semibold'>
-            Filtreleme Paneli
+        <Dialog.Panel className='w-full max-w-4xl bg-white p-6 rounded-lg space-y-6'>
+          <Dialog.Title className='text-xl font-semibold'>
+            Filtreler
           </Dialog.Title>
 
-          {/* Başlık Seçimi */}
-          <div className='flex gap-4'>
-            <select
-              className='w-1/2 border border-gray-300 rounded px-2 py-1'
-              value={selectedHeader}
-              onChange={handleHeaderSelect}
-            >
-              <option value=''>Filtre Başlığı Seç</option>
-              {filtersData.map((f) => (
-                <option key={f.id} value={f.title}>
-                  {f.title}
-                </option>
-              ))}
-            </select>
+          {/* Üst Grid */}
+          <div className='grid grid-cols-4 gap-4'>
+            {/* Filtreler */}
+            <div className='space-y-2'>
+              <label className='font-medium'>Filtreler</label>
+              <select
+                className='w-full border rounded px-2 py-1'
+                value={selectedHeader}
+                onChange={handleHeaderSelect}
+              >
+                <option value=''>Başlık seçiniz</option>
+                {generalHeaders.map((f) => (
+                  <option key={f.id} value={f.title}>
+                    {f.title}
+                  </option>
+                ))}
+              </select>
+              <select
+                className='w-full border rounded px-2 py-1'
+                value=''
+                onChange={handleValueSelect}
+                disabled={!selectedHeader}
+              >
+                <option value=''>Değer seçiniz</option>
+                {currentValues.map((v) => (
+                  <option key={v.value} value={v.value}>
+                    {v.valueName || v.value}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            {/* Değer Seçimi */}
-            <select
-              className='w-1/2 border border-gray-300 rounded px-2 py-1'
-              value=''
-              onChange={handleValueSelect}
-              disabled={!selectedHeader}
-            >
-              <option value=''>Değer Seç</option>
-              {currentOptions.map((v) => (
-                <option key={v.value} value={v.value}>
-                  {v.valueName || v.value}
-                </option>
-              ))}
-            </select>
+            {/* Stok */}
+            <div className='space-y-2'>
+              <label className='font-medium'>Stok</label>
+              <select
+                className='w-full border rounded px-2 py-1'
+                value={selectedWarehouse}
+                onChange={(e) => setSelectedWarehouse(e.target.value)}
+              >
+                <option value=''>Depo seçiniz</option>
+                {warehouseValues.map((v) => (
+                  <option key={v.value} value={v.value}>
+                    {v.valueName}
+                  </option>
+                ))}
+              </select>
+              <input
+                type='number'
+                placeholder='Minimum Stok'
+                className='w-full border rounded px-2 py-1'
+                value={minStock}
+                onChange={(e) => setMinStock(e.target.value)}
+              />
+              <input
+                type='number'
+                placeholder='Maksimum Stok'
+                className='w-full border rounded px-2 py-1'
+                value={maxStock}
+                onChange={(e) => setMaxStock(e.target.value)}
+              />
+              <label className='inline-flex items-center space-x-2'>
+                <input
+                  type='checkbox'
+                  className='form-checkbox'
+                  checked={allSizes}
+                  onChange={(e) => setAllSizes(e.target.checked)}
+                />
+                <span>Tüm Bedenlerinde Stok Olanlar</span>
+              </label>
+            </div>
+
+            {/* Ürün Kodu */}
+            <div className='space-y-2'>
+              <label className='font-medium'>Ürün Kodu</label>
+              <input
+                type='text'
+                placeholder='Ürün kodu'
+                className='w-full border rounded px-2 py-1'
+                value={productCode}
+                onChange={(e) => setProductCode(e.target.value)}
+              />
+              {/* boşluk */}
+              <div className='h-12' />
+            </div>
+
+            {/* Sıralamalar */}
+            <div className='space-y-2'>
+              <label className='font-medium'>Sıralamalar</label>
+              <select
+                className='w-full border rounded px-2 py-1'
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
+              >
+                <option value=''>Seçiniz</option>
+                <option value='asc'>Artan</option>
+                <option value='desc'>Azalan</option>
+              </select>
+              {/* boşluk */}
+              <div className='h-12' />
+            </div>
           </div>
 
-          {/* Seçilenler Listesi */}
-          {Object.keys(selectedFilters).length > 0 && (
-            <div className='border rounded p-3'>
-              <h3 className='text-sm font-medium mb-2'>Seçilen Filtreler</h3>
-              <div className='flex flex-wrap gap-2'>
-                {Object.entries(selectedFilters).map(([key, values]) =>
-                  values.map((val) => (
-                    <span
-                      key={`${key}-${val}`}
-                      className='bg-gray-100 text-sm px-2 py-1 rounded-full flex items-center gap-1'
-                    >
-                      {key}: {val}
-                      <button
-                        onClick={() => handleRemove(key, val)}
-                        className='ml-1 text-red-500 hover:text-red-700'
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))
-                )}
-              </div>
+          {/* Uygulanan Kriterler */}
+          <div>
+            <label className='font-medium'>Uygulanan Kriterler</label>
+            <div className='mt-2 h-24 border rounded p-2 overflow-auto bg-gray-50'>
+              {Object.entries(selectedFilters).length === 0 &&
+              !selectedWarehouse &&
+              !minStock &&
+              !maxStock &&
+              !productCode ? (
+                <p className='text-gray-500'>Henüz kriter seçilmedi.</p>
+              ) : (
+                <ul className='list-disc list-inside space-y-1 text-sm'>
+                  {Object.entries(selectedFilters).flatMap(([hdr, vals]) =>
+                    vals.map((v) => (
+                      <li key={hdr + v}>
+                        {hdr}:{" "}
+                        {
+                          filtersData
+                            .find((f) => f.title === hdr)
+                            ?.values.find((o) => o.value === v)?.valueName
+                        }
+                      </li>
+                    ))
+                  )}
+                  {selectedWarehouse && (
+                    <li>
+                      Depo:{" "}
+                      {
+                        warehouseValues.find(
+                          (w) => w.value === selectedWarehouse
+                        )?.valueName
+                      }
+                    </li>
+                  )}
+                  {minStock && <li>Min Stok: {minStock}</li>}
+                  {maxStock && <li>Max Stok: {maxStock}</li>}
+                  {allSizes && <li>Tüm bedenlerinde stok olanlar</li>}
+                  {productCode && <li>Ürün Kodu: {productCode}</li>}
+                  {/* sortOption gösterilmiyor ama eklemek isterseniz */}
+                </ul>
+              )}
             </div>
-          )}
+          </div>
 
           {/* Butonlar */}
-          <div className='flex justify-end gap-3'>
+          <div className='flex justify-end gap-4'>
             <button
               onClick={handleClear}
-              className='border border-gray-400 text-gray-700 px-4 py-2 rounded hover:bg-gray-100'
+              className='bg-black text-white px-6 py-2 rounded hover:opacity-90'
             >
-              Temizle
+              Seçimi Temizle
             </button>
             <button
               onClick={handleApply}
-              className='bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700'
+              className='border border-black text-black px-6 py-2 rounded hover:bg-black hover:text-white transition'
             >
-              Uygula
+              Ara
             </button>
           </div>
         </Dialog.Panel>

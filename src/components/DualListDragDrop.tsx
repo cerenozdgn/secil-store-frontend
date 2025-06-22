@@ -17,7 +17,12 @@ import {
 } from "@dnd-kit/sortable";
 import SortableProduct from "./SortableProduct";
 import { useDroppable } from "@dnd-kit/core";
-import { Trash2 } from "lucide-react";
+import { Trash2, Square, LayoutGrid, Grid3X3, Grid2X2 } from "lucide-react";
+import { useGridStore } from "@/lib/useGridStore";
+import RemoveProductModal from "./RemoveProductModal";
+import { useRemoveModalStore } from "@/lib/useRemoveModalStore";
+import SuccessModal from "./SuccessModal";
+import { useSuccessModalStore } from "@/lib/useSuccessModalStore";
 
 interface Props {
   allProducts: Product[];
@@ -55,6 +60,7 @@ export default function DualListDragDrop({
 }: Props) {
   const sensors = useSensors(useSensor(PointerSensor));
   const [dragged, setDragged] = useState<Product | null>(null);
+  const { gridCols, setGridCols } = useGridStore();
 
   const [collectionPage, setCollectionPage] = useState(1);
   const [constantsPage, setConstantsPage] = useState(1);
@@ -92,6 +98,15 @@ export default function DualListDragDrop({
 
   const removeFromConstants = (code: string) => {
     onUpdateSelected(selectedProducts.filter((p) => p.productCode !== code));
+  
+    setTimeout(() => {
+      useSuccessModalStore.getState().openModal("Sabitler içerisinden çıkarıldı.");
+    }, 100);
+  };
+  const gridClassMap: { [key: number]: string } = {
+    2: "grid-cols-2",
+    3: "grid-cols-3",
+    4: "grid-cols-4",
   };
 
   return (
@@ -110,8 +125,8 @@ export default function DualListDragDrop({
     >
       <div className='grid grid-cols-1 md:grid-cols-2 gap-8 items-start'>
         {/* Koleksiyon Ürünleri */}
-        <div className='bg-white dark:bg-gray-900 p-4 rounded shadow flex flex-col justify-between min-h-[650px] flex-1'>
-          <div>
+        <div className='bg-white dark:bg-gray-900 p-4 rounded shadow flex flex-col h-[650px]'>
+          <div className='flex-1 overflow-y-auto'>
             <h2 className='text-lg font-semibold mb-2'>Koleksiyon Ürünleri</h2>
             <SortableContext
               items={paginatedCollection.map(
@@ -122,8 +137,7 @@ export default function DualListDragDrop({
               <div className='grid grid-cols-2 gap-4'>
                 {paginatedCollection.map((product) => {
                   const isSelected = selectedProducts.some(
-                    (p) =>
-                      p.productCode === product.productCode
+                    (p) => p.productCode === product.productCode
                   );
                   return (
                     <div
@@ -168,16 +182,46 @@ export default function DualListDragDrop({
         </div>
 
         {/* Sabitler */}
-        <div className='bg-white dark:bg-gray-900 p-4 rounded shadow flex flex-col justify-between min-h-[650px] flex-1'>
-          <div>
-            <h2 className='text-lg font-semibold mb-2'>Sabitler</h2>
+        <div className='bg-white dark:bg-gray-900 p-4 rounded shadow flex flex-col h-[650px]'>
+          <div className='flex justify-between items-center mb-2'>
+            <h2 className='text-lg font-semibold'>Sabitler</h2>
+            <div className='flex justify-end mb-2 space-x-2'>
+              <button
+                onClick={() => setGridCols(2)}
+                className={`p-1 rounded ${
+                  gridCols === 2
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-800"
+                }`}
+              >
+                <Grid2X2 size={20} />
+              </button>
+              <button
+                onClick={() => setGridCols(3)}
+                className={`p-1 rounded ${
+                  gridCols === 3
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-800"
+                }`}
+              >
+                <LayoutGrid size={20} />
+              </button>
+              <button
+                onClick={() => setGridCols(4)}
+                className={`p-1 rounded ${
+                  gridCols === 4
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-800"
+                }`}
+              >
+                <Grid3X3 size={20} />
+              </button>
+            </div>
+          </div>
+
+          <div className='flex-1 overflow-y-auto'>
             <DroppableArea id='constants'>
-              {selectedProducts.length === 0 && (
-                <p className='text-gray-500'>
-                  Sabit yok. Ürünleri buraya sürükleyin.
-                </p>
-              )}
-              <div className='grid grid-cols-2 gap-4 mt-2'>
+              <div className={`grid ${gridClassMap[gridCols]} gap-4 mt-2`}>
                 {paginatedConstants.map((product) => (
                   <div
                     key={`constant-${product.productCode + product.colorCode}`}
@@ -185,7 +229,9 @@ export default function DualListDragDrop({
                   >
                     <div className='absolute inset-0 bg-white/60 dark:bg-black/40 backdrop-blur-sm flex items-center justify-center rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
                       <button
-                        onClick={() => removeFromConstants(product.productCode)}
+                        onClick={() =>
+                          useRemoveModalStore.getState().openModal(product)
+                        }
                         className='bg-red-600 hover:bg-red-700 text-white p-3 rounded-full'
                         title='Kaldır'
                       >
@@ -205,6 +251,7 @@ export default function DualListDragDrop({
               </div>
             </DroppableArea>
           </div>
+
           <div className='flex justify-center items-center gap-2 mt-4'>
             <button
               onClick={() => setConstantsPage((p) => Math.max(p - 1, 1))}
@@ -242,6 +289,8 @@ export default function DualListDragDrop({
           </div>
         )}
       </DragOverlay>
+      <RemoveProductModal onConfirm={removeFromConstants} />
+      <SuccessModal />
     </DndContext>
   );
 }
