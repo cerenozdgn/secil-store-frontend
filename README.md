@@ -54,12 +54,16 @@ docker-compose up
 
 ## 📋 Klasör Yapısı
 
+```plaintext
+
 src/
 ├── app/         # Sayfalar ve layout yapısı
 ├── components/  # Tekrarlanabilir UI bileşenleri
 ├── lib/         # Zustand store’ları ve yardımcı fonksiyonlar
 ├── types/       # TypeScript tip tanımları
 └── public/      # Statik dosyalar (resimler, favicon vb.)
+
+```
 
 
 
