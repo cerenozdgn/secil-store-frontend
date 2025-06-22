@@ -247,12 +247,12 @@ export default function FilterModal({
             </div>
           </div>
 
-          {/* Uygulanan Kriterler */}
+        
           {/* Uygulanan Kriterler */}
           <div>
             <label className='font-medium'>Uygulanan Kriterler</label>
             <div className='mt-2 h-auto min-h-[2rem] border rounded p-2 bg-gray-50'>
-              {/* hiç filtre yoksa */}
+             
               {Object.entries(selectedFilters).length === 0 &&
               !selectedWarehouse &&
               !minStock &&

@@ -58,13 +58,13 @@ export default function DualListDragDrop({
   selectedProducts,
   onUpdateSelected,
 }: Props) {
-  // sensörleri ekledik
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 100,    // dokunup basılı tutma süresi (ms)
-        tolerance: 5,  // kaydırma toleransı (px)
+        delay: 100,    
+        tolerance: 5,  
       },
     })
   );
@@ -134,7 +134,7 @@ export default function DualListDragDrop({
         if (item) setDragged(item);
       }}
     >
-      {/* touch-none class ile mobile scroll yerine drag tetikle */}
+      
       <div className="touch-none grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         {/* Koleksiyon Ürünleri */}
         <div className="sticky top-0 self-start bg-white dark:bg-gray-900 p-4 rounded shadow flex flex-col h-[650px] overflow-hidden">
