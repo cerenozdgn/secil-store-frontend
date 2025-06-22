@@ -1,4 +1,4 @@
-// components/Header.tsx
+
 "use client";
 
 import { useTheme } from "next-themes";
@@ -10,7 +10,7 @@ export default function Header() {
   return (
     <header className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-md border-b border-gray-200 dark:border-gray-700'>
       <nav className='max-w-screen-xl mx-auto px-4 py-3 flex justify-between items-center'>
-        {/* Sol boşluk veya başlık olursa buraya */}
+       
         <div />
 
         {/* Sağ butonlar */}

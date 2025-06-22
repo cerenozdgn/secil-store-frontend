@@ -14,8 +14,8 @@ export default function RemoveProductModal({ onConfirm }: Props) {
   if (!isOpen || !productToRemove) return null;
 
   const handleConfirm = () => {
-    onConfirm(productToRemove.productCode); // ürün state'ten çıkarılır
-    closeModal(); // silme uyarı modali kapanır
+    onConfirm(productToRemove.productCode); 
+    closeModal(); 
     useSuccessModalStore.getState().openModal("Sabitler içerisinden çıkarıldı.");
   };
 

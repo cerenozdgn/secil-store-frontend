@@ -10,7 +10,7 @@ interface ThemeStore {
 }
 
 export const useThemeStore = create<ThemeStore>((set) => ({
-  theme: "light", // İlk değer (SSR sırasında da geçerli)
+  theme: "light", 
   setTheme: (theme) => {
     if (typeof window !== "undefined") {
       localStorage.setItem("theme", theme);

@@ -72,7 +72,7 @@ export default function LoginPage() {
             placeholder='Şifre'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className='w-full border border-gray-300 rounded px-3 py-2 pr-10' // pr-10 eklendi
+            className='w-full border border-gray-300 rounded px-3 py-2 pr-10' 
           />
           <button
             type='button'

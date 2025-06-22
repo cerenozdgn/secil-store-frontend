@@ -1,4 +1,4 @@
-// app/layout.tsx
+
 "use client";
 
 import "./globals.css";
@@ -16,9 +16,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang='tr'>
       <body className='min-h-screen flex bg-white text-black dark:bg-gray-900 dark:text-white'>
-        {/* next-themes sağlıyor: SSR ile uyumlu, class="dark" ekler */}
+      
         <ThemeProvider attribute='class' defaultTheme='light'>
-          {/* next-auth oturum */}
+         
           <SessionProvider>
             {isAuthPage ? (
               <main className='w-full'>{children}</main>

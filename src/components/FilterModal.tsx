@@ -1,4 +1,4 @@
-// components/FilterModal.tsx
+
 "use client";
 
 import { Dialog } from "@headlessui/react";
@@ -131,7 +131,7 @@ export default function FilterModal({
     setPage(1);
   };
 
-  // Genel filtre başlıkları (stok/depo hariç)
+ 
   const generalHeaders = filtersData.filter(
     (f) => f.id !== "warehouse" && f.id !== "stock"
   );
@@ -249,7 +249,7 @@ export default function FilterModal({
                 <option value='asc'>Artan</option>
                 <option value='desc'>Azalan</option>
               </select>
-              {/* boşluk */}
+            
               <div className='h-12' />
             </div>
           </div>
@@ -292,7 +292,7 @@ export default function FilterModal({
                   {maxStock && <li>Max Stok: {maxStock}</li>}
                   {allSizes && <li>Tüm bedenlerinde stok olanlar</li>}
                   {productCode && <li>Ürün Kodu: {productCode}</li>}
-                  {/* sortOption gösterilmiyor ama eklemek isterseniz */}
+                
                 </ul>
               )}
             </div>

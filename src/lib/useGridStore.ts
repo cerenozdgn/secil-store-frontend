@@ -1,4 +1,4 @@
-// /lib/useGridStore.ts
+
 import { create } from 'zustand';
 
 type GridStore = {
