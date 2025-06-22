@@ -49,8 +49,9 @@ docker-compose up --build
 ## 📋 Klasör Yapısı
 
 src/
-app/ # Sayfalar ve layout yapısı
-components/ # UI bileşenleri
-lib/ # Zustand store'ları ve yardımcılar
-types/ # TypeScript tip tanımları
-public/ # Statik dosyalar
+  app/           # Sayfalar ve layout yapısı
+  components/    # UI bileşenleri
+  lib/           # Zustand store'ları ve yardımcılar
+  types/         # TypeScript tip tanımları
+public/          # Statik dosyalar
+
