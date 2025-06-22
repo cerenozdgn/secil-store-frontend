@@ -61,4 +61,5 @@ src/
 ├── types/       # TypeScript tip tanımları
 └── public/      # Statik dosyalar (resimler, favicon vb.)
 
-````
+
+
