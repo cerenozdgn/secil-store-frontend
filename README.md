@@ -25,7 +25,7 @@ Aşağıdaki adımları izleyerek projeyi yerel bilgisayarınızda çalıştıra
 
 ````bash
 npm install
-
+````
 
 ### 3. Ortam değişkenlerini tanımlayın
 
@@ -34,11 +34,13 @@ Proje dizininde .env.local adlı bir dosya oluşturun ve aşağıdaki şablonu d
 ```env
 NEXTAUTH_SECRET=your-secret-key
 NEXTAUTH_URL=http://localhost:3000
+````
 
 ### 4. Geliştirme sunucusunu başlatın
 
 ```bash
 npm run dev
+````
 
 Tarayıcınızda [http://localhost:3000](http://localhost:3000) adresine gidin.
 
@@ -46,6 +48,7 @@ Tarayıcınızda [http://localhost:3000](http://localhost:3000) adresine gidin.
 
 ```bash
 docker-compose up
+````
 
 > Docker konteyneri ayağa kalktıktan sonra [http://localhost:3000](http://localhost:3000) üzerinden uygulamaya erişebilirsiniz.
 
