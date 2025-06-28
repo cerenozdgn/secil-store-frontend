@@ -1,20 +1,21 @@
-
 "use client";
 
 import { useTheme } from "next-themes";
-import { Bell, Globe, Mail, UserCircle2, Sun, Moon } from "lucide-react";
+import { Bell, Globe, Mail, UserCircle2, Sun, Moon, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { useState } from "react";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-md border-b border-gray-200 dark:border-gray-700'>
+    <header className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-md border-b border-gray-200 dark:border-gray-700 relative z-50'>
       <nav className='max-w-screen-xl mx-auto px-4 py-3 flex justify-between items-center'>
-       
         <div />
 
         {/* Sağ butonlar */}
-        <div className='flex items-center space-x-5'>
+        <div className='flex items-center space-x-5 relative'>
           {/* Tema butonu */}
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -28,7 +29,6 @@ export default function Header() {
             )}
           </button>
 
-          {/* Diğer sabit butonlar */}
           <button
             title='Dil'
             className='text-gray-700 dark:text-gray-300 hover:text-blue-600 transition'
@@ -47,12 +47,29 @@ export default function Header() {
           >
             <Mail className='w-5 h-5' />
           </button>
-          <button
-            title='Profil'
-            className='text-gray-700 dark:text-gray-300 hover:text-blue-600 transition'
-          >
-            <UserCircle2 className='w-6 h-6' />
-          </button>
+
+          {/* Profil Dropdown */}
+          <div className='relative'>
+            <button
+              onClick={() => setMenuOpen((prev) => !prev)}
+              title='Profil'
+              className='text-gray-700 dark:text-gray-300 hover:text-blue-600 transition'
+            >
+              <UserCircle2 className='w-6 h-6' />
+            </button>
+
+            {menuOpen && (
+              <div className='absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50'>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className='flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition'
+                >
+                  <LogOut className='w-4 h-4 mr-2' />
+                  Çıkış Yap
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
     </header>

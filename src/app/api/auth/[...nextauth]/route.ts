@@ -1,11 +1,13 @@
-import NextAuth from "next-auth";
+
+import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { jwtDecode } from "jwt-decode";
-import { JWT } from "next-auth/jwt";
-import { Session, User } from "next-auth";
+import type { JWT } from "next-auth/jwt";
+import type { Session, User, Account, Profile } from "next-auth";
+import type { AdapterUser } from "next-auth/adapters";
 
 interface DecodedToken {
-  exp?: number;
+  exp: number;
 }
 
 interface ExtendedUser extends User {
@@ -24,24 +26,22 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
         body: JSON.stringify({ refreshToken: token.refreshToken }),
       }
     );
-
     const data = await res.json();
     if (!res.ok || !data.data?.accessToken) {
       throw new Error("Refresh token failed");
     }
-
     return {
       ...token,
       accessToken: data.data.accessToken,
       accessTokenExpires: Date.now() + 5 * 60 * 1000,
       refreshToken: data.data.refreshToken ?? token.refreshToken,
     };
-  } catch (error) {
+  } catch {
     return { ...token, error: "RefreshAccessTokenError" };
   }
 }
 
-const handler = NextAuth({
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -50,7 +50,7 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const response = await fetch(
+        const res = await fetch(
           "https://maestro-api-dev.secil.biz/Auth/Login",
           {
             method: "POST",
@@ -61,9 +61,8 @@ const handler = NextAuth({
             }),
           }
         );
-
-        const data = await response.json();
-        if (!response.ok || !data.data?.accessToken) return null;
+        const data = await res.json();
+        if (!res.ok || !data.data?.accessToken) return null;
 
         const decoded = jwtDecode<DecodedToken>(data.data.accessToken);
         if (!decoded.exp) throw new Error("Token has no exp field");
@@ -71,58 +70,68 @@ const handler = NextAuth({
         const user: ExtendedUser = {
           id: "user-id",
           name: "Frontend Developer",
-          email: credentials?.username,
+          email: credentials!.username!,
           accessToken: data.data.accessToken,
           refreshToken: data.data.refreshToken,
           accessTokenExpires: decoded.exp * 1000,
         };
-
         return user;
       },
     }),
   ],
+
   session: { strategy: "jwt" },
+
   callbacks: {
     async jwt({
       token,
       user,
       account,
       profile,
-      trigger,
       isNewUser,
     }: {
       token: JWT;
-      user?: User | undefined;
-      account?: any;
-      profile?: any;
-      trigger?: "signIn" | "signUp" | "update";
+      user?: User | AdapterUser;
+      account?: Account | null;
+      profile?: Profile;
       isNewUser?: boolean;
     }): Promise<JWT> {
+      // On sign-in, save access & refresh tokens in JWT
       if (user && "accessToken" in user) {
-        const extendedUser = user as ExtendedUser;
-
+        const u = user as ExtendedUser;
         return {
           ...token,
-          accessToken: extendedUser.accessToken,
-          refreshToken: extendedUser.refreshToken,
-          accessTokenExpires: extendedUser.accessTokenExpires,
+          accessToken: u.accessToken,
+          refreshToken: u.refreshToken,
+          accessTokenExpires: u.accessTokenExpires,
         };
       }
-
+      // If token is still valid, just return it
       if (Date.now() < (token.accessTokenExpires as number)) {
         return token;
       }
-
+      // Otherwise, refresh it
       return await refreshAccessToken(token);
     },
 
-    async session({ session, token }: { session: Session; token: JWT }) {
+    async session({
+      session,
+      token,
+    }: {
+      session: Session;
+      token: JWT;
+    }): Promise<Session> {
       session.accessToken = token.accessToken as string;
       return session;
     },
   },
-  pages: { signIn: "/" },
-  secret: process.env.NEXTAUTH_SECRET || "secil-store-secret",
-});
 
+  pages: {
+    signIn: "/",
+  },
+
+  secret: process.env.NEXTAUTH_SECRET,
+};
+
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

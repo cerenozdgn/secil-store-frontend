@@ -7,8 +7,14 @@ import { useCollectionStore } from "@/lib/useStore";
 import { BsFillPencilFill } from "react-icons/bs";
 
 export default function CollectionsPage() {
-  const { data: session, status } = useSession();
   const router = useRouter();
+
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      router.replace("/");
+    },
+  });
 
   const {
     collections,
@@ -20,16 +26,17 @@ export default function CollectionsPage() {
     setSelectedCollectionId,
   } = useCollectionStore();
 
+  // Oturum doğrulandıktan sonra veri çek
   useEffect(() => {
+    if (status !== "authenticated") return;
+
     const fetchCollections = async () => {
       try {
         const res = await fetch(
           `https://maestro-api-dev.secil.biz/Collection/GetAll?page=${page}&pageSize=10`,
           {
-            method: "GET",
             headers: {
               Authorization: `Bearer ${session?.accessToken}`,
-              Accept: "application/json",
             },
           }
         );
@@ -42,12 +49,12 @@ export default function CollectionsPage() {
         console.error("Sunucu hatası:", err);
       }
     };
-    if (session?.accessToken) fetchCollections();
-  }, [session, page, setCollections, setTotalPages]);
 
-  if (status === "loading") return <div className='p-4'>Yükleniyor...</div>;
-  if (status === "unauthenticated") {
-    router.push("/");
+    fetchCollections();
+  }, [status, session, page, setCollections, setTotalPages]);
+
+  // Henüz oturum yükleniyorsa veya kullanıcı atılmışsa hiçbir şey render etme
+  if (status === "loading") {
     return null;
   }
 
@@ -56,7 +63,7 @@ export default function CollectionsPage() {
       <h1 className='text-2xl font-bold mb-2'>Koleksiyon</h1>
       <p className='text-gray-600 mb-6'>Koleksiyon Listesi</p>
 
-      {/* Mobile / Tablet: Card View */}
+      {/* Mobil / Tablet: Kart Görünümü */}
       <div className='grid gap-4 sm:hidden'>
         {collections.map((col) => (
           <div
@@ -91,21 +98,15 @@ export default function CollectionsPage() {
         ))}
       </div>
 
-      {/* Desktop / Tablet Above sm: Table View */}
+      {/* Masaüstü / Tablet: Tablo Görünümü */}
       <div className='hidden sm:block relative overflow-x-auto shadow-md sm:rounded-lg'>
         <table className='min-w-full table-auto text-sm text-left text-gray-500 dark:text-gray-400'>
           <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
             <tr>
-              <th scope='col' className='px-6 py-3'>
-                Başlık
-              </th>
-              <th scope='col' className='px-6 py-3'>
-                Ürün Koşulları
-              </th>
-              <th scope='col' className='px-6 py-3'>
-                Satış Kanalı
-              </th>
-              <th scope='col' className='px-6 py-3 text-center'>
+              <th className='px-6 py-3'>Başlık</th>
+              <th className='px-6 py-3'>Ürün Koşulları</th>
+              <th className='px-6 py-3'>Satış Kanalı</th>
+              <th className='px-6 py-3 text-center'>
                 <span className='sr-only'>Düzenle</span>
               </th>
             </tr>
@@ -116,12 +117,9 @@ export default function CollectionsPage() {
                 key={col.id}
                 className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
               >
-                <th
-                  scope='row'
-                  className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'
-                >
+                <td className='px-6 py-4 font-medium text-gray-900 dark:text-white'>
                   {col.info.name}
-                </th>
+                </td>
                 <td
                   className='px-6 py-4'
                   dangerouslySetInnerHTML={{ __html: col.info.description }}
@@ -147,7 +145,7 @@ export default function CollectionsPage() {
         </table>
       </div>
 
-      {/* Pagination */}
+      {/* Sayfalama */}
       <div className='flex justify-center sm:justify-end mt-6 space-x-1 text-sm'>
         <button
           onClick={() => setPage(Math.max(page - 1, 1))}
