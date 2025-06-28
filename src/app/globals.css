@@ -1,29 +1,30 @@
+/* globals.css’in en başına sadece bu satırı ekle */
 @import "tailwindcss";
 
+/* 1) Tema değişkenlerini burada tanımlayın */
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* 2) Manual .dark toggle için MUTLAKA buraya alın */
+:root.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
+/* 3) Yine de sistem tercihine de izin vermek isterseniz */
 @media (prefers-color-scheme: dark) {
-  :root {
+  /* Sistem karanlık tercihliyse ve kullanıcı manuel .dark atamamışsa */
+  :root:not(.dark) {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
 }
 
+/* 4) Body stiliniz */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-}
-module.exports {
-  darkmode: "class";
 }

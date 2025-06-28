@@ -20,7 +20,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
   if (!isClient) return null;
 
   return (
-    <ThemeProvider attribute='class' defaultTheme='light'>
+    <ThemeProvider attribute='class' defaultTheme='light'  enableSystem={true} disableTransitionOnChange>
       <SessionProvider>
         {isAuthPage ? (
           <main className='w-full'>{children}</main>
