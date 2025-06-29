@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useCollectionStore } from "@/lib/useStore";
 import { useFilterStore } from "@/lib/useFilterStore";
-import { useThemeStore } from "@/lib/themeStore"; // ✅ eklendi
+import { useThemeStore } from "@/lib/themeStore"; 
 
 type FilterData = {
   id: string;
@@ -33,7 +33,7 @@ export default function FilterModal({
   const [productCode, setProductCode] = useState<string>("");
   const [sortOption, setSortOption] = useState<string>("");
 
-  const { theme } = useThemeStore(); // ✅ tema bilgisi alındı
+  const { theme } = useThemeStore(); 
   const { setFilters, setPage, removeFilter } = useFilterStore();
   const { data: session } = useSession();
   const collectionId = useCollectionStore(
