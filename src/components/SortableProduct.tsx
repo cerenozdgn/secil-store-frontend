@@ -21,14 +21,16 @@ export default function SortableProduct({ product }: { product: Product }) {
       {...attributes}
       {...listeners}
       style={style}
-      className='p-2 border rounded shadow bg-white dark:bg-gray-700 text-black dark:text-white cursor-move'
+      className='p-2 border rounded shadow bg-[var(--table-bg)] text-[var(--foreground)] cursor-move transition-colors'
     >
       <img
         src={product.imageUrl}
         alt={product.productCode}
         className='w-full h-60 object-contain rounded'
       />
-      <p className='text-sm text-center mt-2'>{product.productCode}</p>
+      <p className='text-sm text-center mt-2 break-words'>
+        {product.productCode}
+      </p>
     </div>
   );
 }

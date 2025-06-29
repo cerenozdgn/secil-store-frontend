@@ -23,7 +23,7 @@ export default function EditPage() {
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const {filters,page} = useFilterStore();
+  const { filters, page } = useFilterStore();
 
   useEffect(() => {
     if (!session?.accessToken || !collectionId) return;
@@ -42,9 +42,8 @@ export default function EditPage() {
             body: JSON.stringify({
               additionalFilters: filters,
               page,
-              pageSize:36,
+              pageSize: 36,
             }),
-            
           }
         );
 
@@ -66,7 +65,7 @@ export default function EditPage() {
     };
 
     fetchCollectionProducts();
-  }, [session, collectionId,filters,page]);
+  }, [session, collectionId, filters, page]);
 
   const handleSave = () => {
     setIsModalOpen(true);
@@ -85,7 +84,7 @@ export default function EditPage() {
 
   if (!collectionId) {
     return (
-      <div className='p-4 text-red-600'>Herhangi bir koleksiyon seçilmedi.</div>
+      <div className='p-4 text-red-800'>Herhangi bir koleksiyon seçilmedi.</div>
     );
   }
 
@@ -131,13 +130,13 @@ export default function EditPage() {
       <div className='flex gap-4 mt-6'>
         <button
           onClick={handleSave}
-          className='bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700'
+          className='bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700'
         >
           Kaydet
         </button>
         <button
           onClick={handleCancel}
-          className='bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500'
+          className='bg-gray-200 text-black px-4 py-2 rounded hover:bg-gray-500'
         >
           Vazgeç
         </button>
@@ -151,11 +150,24 @@ export default function EditPage() {
       >
         <div className='fixed inset-0 bg-black/30' aria-hidden='true' />
         <div className='fixed inset-0 flex items-center justify-center p-4'>
-          <Dialog.Panel className='mx-auto max-w-xl rounded bg-white p-6'>
+          <Dialog.Panel
+            className='mx-auto max-w-xl w-full rounded p-6'
+            style={{
+              backgroundColor: "var(--background)",
+              color: "var(--foreground)",
+            }}
+          >
             <Dialog.Title className='text-xl font-semibold mb-4'>
               Gönderilecek Request
             </Dialog.Title>
-            <pre className='bg-gray-100 p-4 text-sm max-h-96 overflow-auto rounded'>
+            <pre
+              className='p-4 text-sm max-h-96 overflow-auto rounded mb-4'
+              style={{
+                backgroundColor: "var(--table-bg)",
+                color: "var(--foreground)",
+                border: "1px solid var(--table-border)",
+              }}
+            >
               {JSON.stringify(
                 constants.map((p) => ({
                   productCode: p.productCode,
@@ -168,7 +180,11 @@ export default function EditPage() {
             <div className='mt-4 flex justify-end gap-2'>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className='px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700'
+                className='px-4 py-2 rounded font-medium'
+                style={{
+                  backgroundColor: "#2563eb", // tailwind blue-600
+                  color: "white",
+                }}
               >
                 Kapat
               </button>

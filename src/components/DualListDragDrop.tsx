@@ -42,11 +42,11 @@ function DroppableArea({
   return (
     <div
       ref={setNodeRef}
-      className={`min-h-[300px] border-2 border-dashed p-4 rounded transition-colors ${
-        isOver
-          ? "border-blue-500 bg-blue-50 dark:bg-blue-900"
-          : "border-gray-300 bg-gray-50 dark:bg-gray-800"
-      }`}
+      style={{
+        backgroundColor: isOver ? "var(--table-header-bg)" : "var(--table-bg)",
+        borderColor: isOver ? "blue" : "var(--table-border)",
+      }}
+      className='min-h-[300px] border-2 border-dashed p-4 rounded transition-colors'
     >
       {children}
     </div>
@@ -58,13 +58,12 @@ export default function DualListDragDrop({
   selectedProducts,
   onUpdateSelected,
 }: Props) {
-
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 100,    
-        tolerance: 5,  
+        delay: 100,
+        tolerance: 5,
       },
     })
   );
@@ -104,9 +103,7 @@ export default function DualListDragDrop({
   };
 
   const removeFromConstants = (code: string) => {
-    onUpdateSelected(
-      selectedProducts.filter((p) => p.productCode !== code)
-    );
+    onUpdateSelected(selectedProducts.filter((p) => p.productCode !== code));
     setTimeout(() => {
       useSuccessModalStore
         .getState()
@@ -134,19 +131,24 @@ export default function DualListDragDrop({
         if (item) setDragged(item);
       }}
     >
-      
-      <div className="touch-none grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+      <div className='touch-none grid grid-cols-1 md:grid-cols-2 gap-8 items-start'>
         {/* Koleksiyon Ürünleri */}
-        <div className="sticky top-0 self-start bg-white dark:bg-gray-900 p-4 rounded shadow flex flex-col h-[650px] overflow-hidden">
-          <h2 className="text-lg font-semibold mb-2">Koleksiyon Ürünleri</h2>
-          <div className="flex-1 overflow-y-auto">
+        <div
+          className='sticky top-0 self-start p-4 rounded shadow flex flex-col h-[650px] overflow-hidden'
+          style={{
+            backgroundColor: "var(--table-bg)",
+            color: "var(--foreground)",
+          }}
+        >
+          <h2 className='text-lg font-semibold mb-2'>Koleksiyon Ürünleri</h2>
+          <div className='flex-1 overflow-y-auto'>
             <SortableContext
               items={paginatedCollection.map(
                 (p) => `collection-${p.productCode}`
               )}
               strategy={verticalListSortingStrategy}
             >
-              <div className="touch-none grid grid-cols-2 gap-4">
+              <div className='touch-none grid grid-cols-2 gap-4'>
                 {paginatedCollection.map((product) => {
                   const isSelected = selectedProducts.some(
                     (p) => p.productCode === product.productCode
@@ -154,11 +156,11 @@ export default function DualListDragDrop({
                   return (
                     <div
                       key={`collection-${product.productCode}${product.colorCode}`}
-                      className="relative group touch-none"
+                      className='relative group touch-none'
                     >
                       <SortableProduct product={product} />
                       {isSelected && (
-                        <div className="absolute inset-0 bg-white/70 dark:bg-black/50 backdrop-blur-sm flex items-center justify-center text-sm font-semibold text-gray-800 dark:text-white">
+                        <div className='absolute inset-0 bg-white/70 dark:bg-black/50 backdrop-blur-sm flex items-center justify-center text-sm font-semibold text-gray-800 dark:text-white'>
                           Eklendi
                         </div>
                       )}
@@ -168,11 +170,11 @@ export default function DualListDragDrop({
               </div>
             </SortableContext>
           </div>
-          <div className="flex justify-center items-center gap-2 mt-4">
+          <div className='flex justify-center items-center gap-2 mt-4'>
             <button
               onClick={() => setCollectionPage((p) => Math.max(p - 1, 1))}
               disabled={collectionPage === 1}
-              className="px-2 py-1 text-sm border rounded disabled:opacity-50"
+              className='px-2 py-1 text-sm border rounded disabled:opacity-50'
             >
               Önceki
             </button>
@@ -181,12 +183,10 @@ export default function DualListDragDrop({
             </span>
             <button
               onClick={() =>
-                setCollectionPage((p) =>
-                  Math.min(p + 1, collectionTotalPages)
-                )
+                setCollectionPage((p) => Math.min(p + 1, collectionTotalPages))
               }
               disabled={collectionPage === collectionTotalPages}
-              className="px-2 py-1 text-sm border rounded disabled:opacity-50"
+              className='px-2 py-1 text-sm border rounded disabled:opacity-50'
             >
               Sonraki
             </button>
@@ -194,57 +194,56 @@ export default function DualListDragDrop({
         </div>
 
         {/* Sabitler */}
-        <div className="bg-white dark:bg-gray-900 p-4 rounded shadow flex flex-col h-[650px] overflow-hidden">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-lg font-semibold">Sabitler</h2>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => setGridCols(2)}
-                className={`p-1 rounded ${
-                  gridCols === 2
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-800"
-                }`}
-              >
-                <Grid2X2 size={20} />
-              </button>
-              <button
-                onClick={() => setGridCols(3)}
-                className={`p-1 rounded ${
-                  gridCols === 3
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-800"
-                }`}
-              >
-                <LayoutGrid size={20} />
-              </button>
-              <button
-                onClick={() => setGridCols(4)}
-                className={`p-1 rounded ${
-                  gridCols === 4
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-800"
-                }`}
-              >
-                <Grid3X3 size={20} />
-              </button>
+        <div
+          className='p-4 rounded shadow flex flex-col h-[650px] overflow-hidden'
+          style={{
+            backgroundColor: "var(--table-bg)",
+            color: "var(--foreground)",
+          }}
+        >
+          <div className='flex justify-between items-center mb-2'>
+            <h2 className='text-lg font-semibold'>Sabitler</h2>
+            <div className='flex space-x-2'>
+              {[2, 3, 4].map((cols) => (
+                <button
+                  key={cols}
+                  onClick={() => setGridCols(cols)}
+                  className={`p-1 rounded ${
+                    gridCols === cols
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-800"
+                  }`}
+                >
+                  {cols === 2 ? (
+                    <Grid2X2 size={20} />
+                  ) : cols === 3 ? (
+                    <LayoutGrid size={20} />
+                  ) : (
+                    <Grid3X3 size={20} />
+                  )}
+                </button>
+              ))}
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto">
-            <DroppableArea id="constants">
+          <div className='flex-1 overflow-y-auto'>
+            <DroppableArea id='constants'>
               <div className={`grid ${gridClassMap[gridCols]} gap-4 mt-2`}>
                 {paginatedConstants.map((product) => (
                   <div
                     key={`constant-${product.productCode}${product.colorCode}`}
-                    className="relative p-2 border rounded shadow bg-white dark:bg-gray-700 group"
+                    className='relative p-2 border rounded shadow group'
+                    style={{
+                      backgroundColor: "var(--table-bg)",
+                      color: "var(--foreground)",
+                    }}
                   >
-                    <div className="absolute inset-0 bg-white/60 dark:bg-black/40 backdrop-blur-sm flex items-center justify-center rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className='absolute inset-0 bg-white/60 dark:bg-black/40 backdrop-blur-sm flex items-center justify-center rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
                       <button
                         onClick={() =>
                           useRemoveModalStore.getState().openModal(product)
                         }
-                        className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-full"
-                        title="Kaldır"
+                        className='bg-red-600 hover:bg-red-700 text-white p-3 rounded-full'
+                        title='Kaldır'
                       >
                         <Trash2 size={24} />
                       </button>
@@ -252,9 +251,9 @@ export default function DualListDragDrop({
                     <img
                       src={product.imageUrl}
                       alt={product.productCode}
-                      className="w-full h-60 object-contain rounded"
+                      className='w-full h-60 object-contain rounded'
                     />
-                    <p className="text-sm mt-2 text-center text-gray-800 dark:text-gray-200 break-all">
+                    <p className='text-sm mt-2 text-center break-all'>
                       {product.productCode}
                     </p>
                   </div>
@@ -262,11 +261,11 @@ export default function DualListDragDrop({
               </div>
             </DroppableArea>
           </div>
-          <div className="flex justify-center items-center gap-2 mt-4">
+          <div className='flex justify-center items-center gap-2 mt-4'>
             <button
               onClick={() => setConstantsPage((p) => Math.max(p - 1, 1))}
               disabled={constantsPage === 1}
-              className="px-2 py-1 text-sm border rounded disabled:opacity-50"
+              className='px-2 py-1 text-sm border rounded disabled:opacity-50'
             >
               Önceki
             </button>
@@ -278,7 +277,7 @@ export default function DualListDragDrop({
                 setConstantsPage((p) => Math.min(p + 1, constantsTotalPages))
               }
               disabled={constantsPage === constantsTotalPages}
-              className="px-2 py-1 text-sm border rounded disabled:opacity-50"
+              className='px-2 py-1 text-sm border rounded disabled:opacity-50'
             >
               Sonraki
             </button>
@@ -288,13 +287,19 @@ export default function DualListDragDrop({
 
       <DragOverlay>
         {dragged && (
-          <div className="p-2 border rounded shadow bg-white dark:bg-gray-700">
+          <div
+            className='p-2 border rounded shadow'
+            style={{
+              backgroundColor: "var(--table-bg)",
+              color: "var(--foreground)",
+            }}
+          >
             <img
               src={dragged.imageUrl}
               alt={dragged.productCode}
-              className="w-full h-60 object-contain rounded"
+              className='w-full h-60 object-contain rounded'
             />
-            <p className="text-sm text-center mt-2">{dragged.productCode}</p>
+            <p className='text-sm text-center mt-2'>{dragged.productCode}</p>
           </div>
         )}
       </DragOverlay>

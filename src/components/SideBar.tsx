@@ -1,8 +1,8 @@
-// Sidebar.jsx
 "use client";
 
 import Link from "next/link";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 import { Home, Box, ShoppingCart } from "lucide-react";
 
 const MENU_ITEMS = [
@@ -12,29 +12,51 @@ const MENU_ITEMS = [
 ];
 
 export default function Sidebar() {
+  const { theme } = useTheme();
+
+  const logoSrc =
+    theme === "dark" ? "/secil-logo-lightt.png" : "/secil-store-seeklogo.png";
+
   return (
-    <aside className="w-64 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-md min-h-screen flex flex-col items-center py-6">
-      {/* Logo */}
-      <div className="mb-16">
+    <aside
+      className='
+        w-64 p-6 flex flex-col items-center
+        bg-[var(--background)]
+        text-[var(--foreground)]
+        backdrop-blur-sm
+        shadow-md
+        border-r border-[var(--table-border)]
+        transition-colors duration-200
+        min-h-screen
+      '
+    >
+      {/* Logo alanı sabit boyutlu ve içerik kutuya oturacak şekilde ayarlandı */}
+      <div className='mb-16 w-[150px] h-[60px] relative'>
         <Image
-          src="/secil-store-seeklogo.png"
-          alt="Logo"
-          width={150}
-          height={150}
-          className="dark:invert"
+          src={logoSrc}
+          alt='Logo'
+          fill
+          className='object-contain'
+          sizes='150px'
+          priority
         />
       </div>
 
-      {/* Menü */}
-      <nav className="w-full">
+      <nav className='w-full space-y-1'>
         {MENU_ITEMS.map(({ label, icon: Icon, href }) => (
           <Link
             key={label}
             href={href}
-            className="flex items-center w-full gap-3 px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+            className='
+              flex items-center w-full gap-3 px-6 py-3
+              text-[var(--foreground)]
+              hover:bg-[var(--table-header-bg)]
+              rounded
+              transition-colors duration-150
+            '
           >
-            <Icon className="w-5 h-5" />
-            <span className="font-medium">{label}</span>
+            <Icon className='w-5 h-5' />
+            <span className='font-medium'>{label}</span>
           </Link>
         ))}
       </nav>

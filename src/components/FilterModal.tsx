@@ -38,7 +38,6 @@ export default function FilterModal({
     (state) => state.selectedCollectionId
   );
 
-  // API'den filtre verilerini çek
   useEffect(() => {
     if (!isOpen || !session?.accessToken || !collectionId) return;
     fetch(
@@ -55,44 +54,43 @@ export default function FilterModal({
       .catch((err) => console.error("Filtre çekme hatası:", err));
   }, [isOpen, session, collectionId]);
 
-  // Filtre başlığı seçimi
   const handleHeaderSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedHeader(e.target.value);
   };
-  // Filtre değeri seçimi
+
   const handleValueSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     if (!selectedHeader || !val) return;
     setSelectedFilters((prev) => {
-      const arr = prev[selectedHeader] || [];
-      if (arr.includes(val)) return prev;
-      return { ...prev, [selectedHeader]: [...arr, val] };
+      const current = prev[selectedHeader] || [];
+      if (current.includes(val)) return prev;
+      return { ...prev, [selectedHeader]: [...current, val] };
     });
   };
-  // Tekil filtre sil
+
   const handleRemove = (hdr: string, val: string) => {
     setSelectedFilters((prev) => {
       const updated = prev[hdr].filter((v) => v !== val);
-      const copy = { ...prev };
-      if (updated.length) copy[hdr] = updated;
-      else delete copy[hdr];
-      return copy;
+      const newFilters = { ...prev };
+      if (updated.length) newFilters[hdr] = updated;
+      else delete newFilters[hdr];
+      return newFilters;
     });
     const id = filtersData.find((f) => f.title === hdr)?.id;
     if (id) removeFilter(id, val);
   };
 
-  // Uygula
   const handleApply = () => {
-    const general = Object.entries(selectedFilters).flatMap(([hdr, vals]) =>
-      vals.map((v) => ({
-        id: filtersData.find((f) => f.title === hdr)?.id || "",
-        value: v,
-        comparisonType:
-          filtersData.find((f) => f.title === hdr)?.comparisonType ?? 0,
-      }))
+    const generalFilters = Object.entries(selectedFilters).flatMap(
+      ([hdr, values]) =>
+        values.map((v) => ({
+          id: filtersData.find((f) => f.title === hdr)?.id || "",
+          value: v,
+          comparisonType:
+            filtersData.find((f) => f.title === hdr)?.comparisonType ?? 0,
+        }))
     );
-    const warehouseF = selectedWarehouse
+    const warehouseFilter = selectedWarehouse
       ? [
           {
             id: "warehouse",
@@ -103,20 +101,25 @@ export default function FilterModal({
           },
         ]
       : [];
-    const stockF: any[] = [];
+    const stockFilters = [];
     if (minStock)
-      stockF.push({ id: "stock", value: minStock, comparisonType: 3 });
+      stockFilters.push({ id: "stock", value: minStock, comparisonType: 3 });
     if (maxStock)
-      stockF.push({ id: "stock", value: maxStock, comparisonType: 2 });
-    const codeF = productCode
+      stockFilters.push({ id: "stock", value: maxStock, comparisonType: 2 });
+    const codeFilter = productCode
       ? [{ id: "productCode", value: productCode, comparisonType: 0 }]
       : [];
 
-    setFilters([...general, ...warehouseF, ...stockF, ...codeF]);
+    setFilters([
+      ...generalFilters,
+      ...warehouseFilter,
+      ...stockFilters,
+      ...codeFilter,
+    ]);
     setPage(1);
     onClose();
   };
-  // Temizle
+
   const handleClear = () => {
     setSelectedFilters({});
     setSelectedWarehouse("");
@@ -141,18 +144,18 @@ export default function FilterModal({
     <Dialog open={isOpen} onClose={onClose} className='relative z-50'>
       <div className='fixed inset-0 bg-black/30' aria-hidden='true' />
       <div className='fixed inset-0 flex items-center justify-center p-4'>
-        <Dialog.Panel className='w-full max-w-4xl bg-white p-6 rounded-lg space-y-6'>
+        <Dialog.Panel className='w-full max-w-4xl bg-[var(--table-bg)] text-[var(--foreground)] p-6 rounded-lg space-y-6 transition-colors'>
           <Dialog.Title className='text-xl font-semibold'>
             Filtreler
           </Dialog.Title>
 
-          {/* Üst Grid */}
+          {/* Grid */}
           <div className='grid grid-cols-4 gap-4'>
-            {/* Filtreler */}
+            {/* Genel filtre */}
             <div className='space-y-2'>
               <label className='font-medium'>Filtreler</label>
               <select
-                className='w-full border rounded px-2 py-1'
+                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
                 value={selectedHeader}
                 onChange={handleHeaderSelect}
               >
@@ -164,7 +167,7 @@ export default function FilterModal({
                 ))}
               </select>
               <select
-                className='w-full border rounded px-2 py-1'
+                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
                 value=''
                 onChange={handleValueSelect}
                 disabled={!selectedHeader}
@@ -178,11 +181,11 @@ export default function FilterModal({
               </select>
             </div>
 
-            {/* Stok */}
+            {/* Depo ve stok */}
             <div className='space-y-2'>
               <label className='font-medium'>Stok</label>
               <select
-                className='w-full border rounded px-2 py-1'
+                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
                 value={selectedWarehouse}
                 onChange={(e) => setSelectedWarehouse(e.target.value)}
               >
@@ -196,14 +199,14 @@ export default function FilterModal({
               <input
                 type='number'
                 placeholder='Minimum Stok'
-                className='w-full border rounded px-2 py-1'
+                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
                 value={minStock}
                 onChange={(e) => setMinStock(e.target.value)}
               />
               <input
                 type='number'
                 placeholder='Maksimum Stok'
-                className='w-full border rounded px-2 py-1'
+                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
                 value={maxStock}
                 onChange={(e) => setMaxStock(e.target.value)}
               />
@@ -214,28 +217,28 @@ export default function FilterModal({
                   checked={allSizes}
                   onChange={(e) => setAllSizes(e.target.checked)}
                 />
-                <span>Tüm Bedenlerinde Stok Olanlar</span>
+                <span>Tüm bedenlerinde stok</span>
               </label>
             </div>
 
-            {/* Ürün Kodu */}
+            {/* Ürün kodu */}
             <div className='space-y-2'>
               <label className='font-medium'>Ürün Kodu</label>
               <input
                 type='text'
                 placeholder='Ürün kodu'
-                className='w-full border rounded px-2 py-1'
+                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
                 value={productCode}
                 onChange={(e) => setProductCode(e.target.value)}
               />
               <div className='h-12' />
             </div>
 
-            {/* Sıralamalar */}
+            {/* Sıralama */}
             <div className='space-y-2'>
               <label className='font-medium'>Sıralamalar</label>
               <select
-                className='w-full border rounded px-2 py-1'
+                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
               >
@@ -247,22 +250,21 @@ export default function FilterModal({
             </div>
           </div>
 
-        
-          {/* Uygulanan Kriterler */}
+          {/* Aktif Filtreler */}
           <div>
             <label className='font-medium'>Uygulanan Kriterler</label>
-            <div className='mt-2 h-auto min-h-[2rem] border rounded p-2 bg-gray-50'>
-             
+            <div className='mt-2 min-h-[2rem] border rounded p-2 bg-[var(--table-header-bg)] text-[var(--foreground)]'>
               {Object.entries(selectedFilters).length === 0 &&
               !selectedWarehouse &&
               !minStock &&
               !maxStock &&
               !allSizes &&
               !productCode ? (
-                <p className='text-gray-500'>Henüz kriter seçilmedi.</p>
+                <p className='text-sm text-gray-500 dark:text-gray-400'>
+                  Henüz kriter seçilmedi.
+                </p>
               ) : (
                 <div className='flex flex-wrap gap-2'>
-                  {/* Genel filtreler */}
                   {Object.entries(selectedFilters).flatMap(([hdr, vals]) =>
                     vals.map((v) => {
                       const label =
@@ -272,7 +274,7 @@ export default function FilterModal({
                       return (
                         <span
                           key={hdr + v}
-                          className='group inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-medium'
+                          className='group inline-flex items-center bg-[var(--table-border)] text-[var(--foreground)] rounded-full px-3 py-1 text-sm'
                         >
                           <span>
                             {hdr}: {label}
@@ -280,102 +282,13 @@ export default function FilterModal({
                           <button
                             type='button'
                             onClick={() => handleRemove(hdr, v)}
-                            className='hidden group-hover:inline-flex ml-2 text-gray-500 hover:text-gray-700'
+                            className='ml-2 hover:text-red-500'
                           >
                             ×
                           </button>
                         </span>
                       );
                     })
-                  )}
-
-                  {/* Depo */}
-                  {selectedWarehouse && (
-                    <span className='group inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-medium'>
-                      <span>
-                        Depo:{" "}
-                        {
-                          warehouseValues.find(
-                            (w) => w.value === selectedWarehouse
-                          )?.valueName
-                        }
-                      </span>
-                      <button
-                        type='button'
-                        onClick={() => {
-                          setSelectedWarehouse("");
-                          removeFilter("warehouse", selectedWarehouse);
-                        }}
-                        className='hidden group-hover:inline-flex ml-2 text-gray-500 hover:text-gray-700'
-                      >
-                        ×
-                      </button>
-                    </span>
-                  )}
-
-                  {/* Min Stok */}
-                  {minStock && (
-                    <span className='group inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-medium'>
-                      <span>Min Stok: {minStock}</span>
-                      <button
-                        type='button'
-                        onClick={() => {
-                          setMinStock("");
-                          removeFilter("stock", minStock);
-                        }}
-                        className='hidden group-hover:inline-flex ml-2 text-gray-500 hover:text-gray-700'
-                      >
-                        ×
-                      </button>
-                    </span>
-                  )}
-
-                  {/* Max Stok */}
-                  {maxStock && (
-                    <span className='group inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-medium'>
-                      <span>Max Stok: {maxStock}</span>
-                      <button
-                        type='button'
-                        onClick={() => {
-                          setMaxStock("");
-                          removeFilter("stock", maxStock);
-                        }}
-                        className='hidden group-hover:inline-flex ml-2 text-gray-500 hover:text-gray-700'
-                      >
-                        ×
-                      </button>
-                    </span>
-                  )}
-
-                  {/* Tüm bedenler */}
-                  {allSizes && (
-                    <span className='group inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-medium'>
-                      <span>Tüm bedenlerinde stok</span>
-                      <button
-                        type='button'
-                        onClick={() => setAllSizes(false)}
-                        className='hidden group-hover:inline-flex ml-2 text-gray-500 hover:text-gray-700'
-                      >
-                        ×
-                      </button>
-                    </span>
-                  )}
-
-                  {/* Ürün Kodu */}
-                  {productCode && (
-                    <span className='group inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-medium'>
-                      <span>Ürün Kodu: {productCode}</span>
-                      <button
-                        type='button'
-                        onClick={() => {
-                          setProductCode("");
-                          removeFilter("productCode", productCode);
-                        }}
-                        className='hidden group-hover:inline-flex ml-2 text-gray-500 hover:text-gray-700'
-                      >
-                        ×
-                      </button>
-                    </span>
                   )}
                 </div>
               )}
@@ -386,13 +299,13 @@ export default function FilterModal({
           <div className='flex justify-end gap-4'>
             <button
               onClick={handleClear}
-              className='bg-black text-white px-6 py-2 rounded hover:opacity-90'
+              className='bg-black dark:bg-white text-white dark:text-black px-6 py-2 rounded hover:opacity-90'
             >
               Seçimi Temizle
             </button>
             <button
               onClick={handleApply}
-              className='border border-black text-black px-6 py-2 rounded hover:bg-black hover:text-white transition'
+              className='border border-black dark:border-white text-black dark:text-white px-6 py-2 rounded hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition'
             >
               Ara
             </button>
