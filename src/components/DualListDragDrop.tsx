@@ -11,19 +11,20 @@ import {
   useSensors,
   DragEndEvent,
   DragOverlay,
+  useDroppable,
 } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import SortableProduct from "./SortableProduct";
-import { useDroppable } from "@dnd-kit/core";
 import { Trash2, LayoutGrid, Grid3X3, Grid2X2 } from "lucide-react";
 import { useGridStore } from "@/lib/useGridStore";
 import RemoveProductModal from "./RemoveProductModal";
 import { useRemoveModalStore } from "@/lib/useRemoveModalStore";
 import SuccessModal from "./SuccessModal";
 import { useSuccessModalStore } from "@/lib/useSuccessModalStore";
+import { useThemeStore } from "@/lib/themeStore"; // ✅ eklendi
 
 interface Props {
   allProducts: Product[];
@@ -58,6 +59,8 @@ export default function DualListDragDrop({
   selectedProducts,
   onUpdateSelected,
 }: Props) {
+  const { theme } = useThemeStore(); // ✅ eklendi
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(TouchSensor, {
@@ -67,9 +70,9 @@ export default function DualListDragDrop({
       },
     })
   );
+
   const [dragged, setDragged] = useState<Product | null>(null);
   const { gridCols, setGridCols } = useGridStore();
-
   const [collectionPage, setCollectionPage] = useState(1);
   const [constantsPage, setConstantsPage] = useState(1);
   const itemsPerPage = 6;

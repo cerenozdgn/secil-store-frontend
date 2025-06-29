@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRememberStore } from "@/lib/useRememberStore";
 import { Eye, EyeOff } from "lucide-react";
+import { useThemeStore } from "@/lib/themeStore";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,6 +15,10 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const { remember, setRemember } = useRememberStore();
+  const { theme } = useThemeStore(); // Zustand'dan temayı al
+
+  const logoSrc =
+    theme === "dark" ? "/secil-logo-lightt.png" : "/secil-store-seeklogo.png";
 
   useEffect(() => {
     const rememberedEmail = localStorage.getItem("rememberedEmail");
@@ -46,13 +51,31 @@ export default function LoginPage() {
   };
 
   return (
-    <main className='flex h-screen items-center justify-center bg-gray-100'>
+    <main
+      className='flex h-screen items-center justify-center transition-colors'
+      style={{
+        backgroundColor: "var(--background)",
+        color: "var(--foreground)",
+      }}
+    >
       <form
         onSubmit={handleLogin}
-        className='bg-white p-8 rounded shadow-md w-96 space-y-4'
+        className='w-96 p-8 rounded shadow-md space-y-4'
+        style={{
+          backgroundColor: "var(--table-bg)",
+          color: "var(--foreground)",
+          border: "1px solid var(--table-border)",
+        }}
       >
         <div className='flex justify-center'>
-          <Image src='/secil-store-seeklogo.png' alt='Logo' width={150} height={150} />
+          <Image
+            src={logoSrc}
+            alt='Logo'
+            width={150}
+            height={150}
+            className='object-contain'
+            priority
+          />
         </div>
 
         <h2 className='text-l font-semibold text-center'>Giriş Yap</h2>
@@ -62,17 +85,26 @@ export default function LoginPage() {
           placeholder='E-posta'
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className='w-full border border-gray-300 rounded px-3 py-2'
+          className='w-full px-3 py-2 rounded border'
+          style={{
+            backgroundColor: "var(--table-bg)",
+            color: "var(--foreground)",
+            borderColor: "var(--table-border)",
+          }}
         />
 
-        {/* Şifre Alanı */}
         <div className='relative'>
           <input
             type={showPassword ? "text" : "password"}
             placeholder='Şifre'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className='w-full border border-gray-300 rounded px-3 py-2 pr-10' 
+            className='w-full px-3 py-2 pr-10 rounded border'
+            style={{
+              backgroundColor: "var(--table-bg)",
+              color: "var(--foreground)",
+              borderColor: "var(--table-border)",
+            }}
           />
           <button
             type='button'
@@ -88,8 +120,8 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <div className='flex items-center justify-between'>
-          <label className='flex items-center text-sm'>
+        <div className='flex items-center justify-between text-sm'>
+          <label className='flex items-center'>
             <input
               type='checkbox'
               checked={remember}
@@ -100,11 +132,15 @@ export default function LoginPage() {
           </label>
         </div>
 
-        {error && <p className='text-red-600 text-sm'>{error}</p>}
+        {error && <p className='text-red-500 text-sm'>{error}</p>}
 
         <button
           type='submit'
-          className='w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700'
+          className='w-full py-2 rounded font-medium'
+          style={{
+            backgroundColor: "#2563eb",
+            color: "white",
+          }}
         >
           Giriş Yap
         </button>

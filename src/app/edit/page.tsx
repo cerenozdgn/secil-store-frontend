@@ -9,6 +9,7 @@ import { Dialog } from "@headlessui/react";
 import DualListDragDrop from "@/components/DualListDragDrop";
 import FilterModal from "@/components/FilterModal";
 import { useFilterStore } from "@/lib/useFilterStore";
+import { useThemeStore } from "@/lib/themeStore";
 
 export default function EditPage() {
   const { data: session, status } = useSession();
@@ -24,6 +25,7 @@ export default function EditPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const { filters, page } = useFilterStore();
+  const { theme } = useThemeStore();
 
   useEffect(() => {
     if (!session?.accessToken || !collectionId) return;
@@ -151,22 +153,21 @@ export default function EditPage() {
         <div className='fixed inset-0 bg-black/30' aria-hidden='true' />
         <div className='fixed inset-0 flex items-center justify-center p-4'>
           <Dialog.Panel
-            className='mx-auto max-w-xl w-full rounded p-6'
-            style={{
-              backgroundColor: "var(--background)",
-              color: "var(--foreground)",
-            }}
+            className={`mx-auto max-w-xl w-full rounded p-6 ${
+              theme === "dark"
+                ? "bg-[#1e293b] text-[#e0f2fe]"
+                : "bg-white text-black"
+            }`}
           >
             <Dialog.Title className='text-xl font-semibold mb-4'>
               Gönderilecek Request
             </Dialog.Title>
             <pre
-              className='p-4 text-sm max-h-96 overflow-auto rounded mb-4'
-              style={{
-                backgroundColor: "var(--table-bg)",
-                color: "var(--foreground)",
-                border: "1px solid var(--table-border)",
-              }}
+              className={`p-4 text-sm max-h-96 overflow-auto rounded mb-4 border ${
+                theme === "dark"
+                  ? "bg-[#0f172a] text-[#e0f2fe] border-[#475569]"
+                  : "bg-gray-100 text-black border-gray-300"
+              }`}
             >
               {JSON.stringify(
                 constants.map((p) => ({
@@ -180,11 +181,7 @@ export default function EditPage() {
             <div className='mt-4 flex justify-end gap-2'>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className='px-4 py-2 rounded font-medium'
-                style={{
-                  backgroundColor: "#2563eb", // tailwind blue-600
-                  color: "white",
-                }}
+                className='px-4 py-2 rounded font-medium bg-blue-600 text-white hover:bg-blue-700'
               >
                 Kapat
               </button>

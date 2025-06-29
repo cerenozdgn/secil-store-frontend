@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCollectionStore } from "@/lib/useStore";
 import { BsFillPencilFill } from "react-icons/bs";
+import { useThemeStore } from "@/lib/themeStore";
 
 export default function CollectionsPage() {
   const router = useRouter();
@@ -24,6 +25,15 @@ export default function CollectionsPage() {
     setTotalPages,
     setSelectedCollectionId,
   } = useCollectionStore();
+
+  const { theme } = useThemeStore(); // Tema durumunu oku
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      document.documentElement.classList.remove("light", "dark");
+      document.documentElement.classList.add(theme);
+    }
+  }, [theme]);
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -54,23 +64,23 @@ export default function CollectionsPage() {
   if (status === "loading") return null;
 
   return (
-    <div className='p-4 md:p-8'>
+    <div className='p-4 md:p-8 text-[var(--foreground)]'>
       <h1 className='text-2xl font-bold mb-2'>Koleksiyon</h1>
-      <p className='text-gray-600 dark:text-gray-400 mb-6'>Koleksiyon Listesi</p>
+      <p className='text-[var(--foreground)] opacity-70 mb-6'>
+        Koleksiyon Listesi
+      </p>
 
       {/* Mobile Card View */}
       <div className='grid gap-4 sm:hidden'>
         {collections.map((col) => (
           <div
             key={col.id}
-            className='bg-white dark:bg-slate-800 p-4 rounded-lg shadow'
+            className='bg-[var(--table-bg)] p-4 rounded-lg shadow border border-[var(--table-border)]'
           >
             <div className='flex justify-between items-start mb-2'>
               <div>
-                <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
-                  {col.info.name}
-                </h3>
-                <p className='text-sm text-gray-600 dark:text-gray-400'>
+                <h3 className='text-lg font-semibold'>{col.info.name}</h3>
+                <p className='text-sm opacity-70'>
                   {col.salesChannel || "Satış Kanalı - X"}
                 </p>
               </div>
@@ -79,13 +89,13 @@ export default function CollectionsPage() {
                   setSelectedCollectionId(col.id);
                   router.push("/edit");
                 }}
-                className='p-2 text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded'
+                className='p-2 text-blue-600 hover:bg-[var(--hover-bg)] rounded'
               >
                 <BsFillPencilFill size={20} />
               </button>
             </div>
             <div
-              className='text-sm text-gray-700 dark:text-gray-300'
+              className='text-sm'
               dangerouslySetInnerHTML={{ __html: col.info.description }}
             />
           </div>
@@ -94,21 +104,20 @@ export default function CollectionsPage() {
 
       {/* Desktop Table View */}
       <div className='hidden sm:block overflow-x-auto rounded-lg shadow'>
-        <table className='min-w-full text-sm text-left text-gray-700 dark:text-gray-300'>
-          <thead style={{ backgroundColor: "var(--table-header)" }}>
+        <table className='min-w-full text-sm text-left text-[var(--foreground)]'>
+          <thead className='bg-[var(--table-header-bg)]'>
             <tr>
-              <th className='px-6 py-3 text-sm font-bold'>BAŞLIK</th>
-              <th className='px-6 py-3 text-sm font-bold'>ÜRÜN KOŞULLARI</th>
-              <th className='px-6 py-3 text-sm font-bold'>SATIŞ KANALI</th>
-              <th className='px-6 py-3 text-sm font-bold text-right'>DÜZENLE</th>
+              <th className='px-6 py-3 font-bold'>BAŞLIK</th>
+              <th className='px-6 py-3 font-bold'>ÜRÜN KOŞULLARI</th>
+              <th className='px-6 py-3 font-bold'>SATIŞ KANALI</th>
+              <th className='px-6 py-3 font-bold text-right'>DÜZENLE</th>
             </tr>
           </thead>
           <tbody>
             {collections.map((col) => (
               <tr
                 key={col.id}
-                style={{ backgroundColor: "var(--table-bg)" }}
-                className='border-b border-gray-200 dark:border-gray-700'
+                className='border-b border-[var(--table-border)] bg-[var(--table-bg)]'
               >
                 <td className='px-6 py-4 font-medium'>{col.info.name}</td>
                 <td
@@ -127,7 +136,6 @@ export default function CollectionsPage() {
                     className='bg-gray-900 text-white px-3 py-1 rounded hover:bg-blue-800 text-xs flex items-center gap-1'
                   >
                     <BsFillPencilFill className='w-4 h-4' />
-                    
                   </button>
                 </td>
               </tr>

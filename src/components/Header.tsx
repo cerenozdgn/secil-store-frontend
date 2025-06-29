@@ -1,6 +1,5 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import {
   Bell,
   Globe,
@@ -12,9 +11,10 @@ import {
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
+import { useThemeStore } from "@/lib/themeStore";
 
 export default function Header() {
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useThemeStore();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -23,8 +23,9 @@ export default function Header() {
         <div />
 
         <div className='flex items-center space-x-5 relative'>
+          {/* Tema Butonu */}
           <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={toggleTheme}
             title='Tema Değiştir'
             className='hover:text-yellow-500 transition'
             style={{ color: "var(--foreground)" }}

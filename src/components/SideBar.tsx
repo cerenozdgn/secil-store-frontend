@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 import { Home, Box, ShoppingCart } from "lucide-react";
+import { useThemeStore } from "@/lib/themeStore";
 
 const MENU_ITEMS = [
   { label: "Dashboard", icon: Home, href: "/dashboard" },
@@ -12,7 +12,7 @@ const MENU_ITEMS = [
 ];
 
 export default function Sidebar() {
-  const { theme } = useTheme();
+  const { theme } = useThemeStore();
 
   const logoSrc =
     theme === "dark" ? "/secil-logo-lightt.png" : "/secil-store-seeklogo.png";

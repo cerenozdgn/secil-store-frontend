@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useCollectionStore } from "@/lib/useStore";
 import { useFilterStore } from "@/lib/useFilterStore";
+import { useThemeStore } from "@/lib/themeStore"; // ✅ eklendi
 
 type FilterData = {
   id: string;
@@ -32,6 +33,7 @@ export default function FilterModal({
   const [productCode, setProductCode] = useState<string>("");
   const [sortOption, setSortOption] = useState<string>("");
 
+  const { theme } = useThemeStore(); // ✅ tema bilgisi alındı
   const { setFilters, setPage, removeFilter } = useFilterStore();
   const { data: session } = useSession();
   const collectionId = useCollectionStore(
@@ -144,7 +146,13 @@ export default function FilterModal({
     <Dialog open={isOpen} onClose={onClose} className='relative z-50'>
       <div className='fixed inset-0 bg-black/30' aria-hidden='true' />
       <div className='fixed inset-0 flex items-center justify-center p-4'>
-        <Dialog.Panel className='w-full max-w-4xl bg-[var(--table-bg)] text-[var(--foreground)] p-6 rounded-lg space-y-6 transition-colors'>
+        <Dialog.Panel
+          className={`w-full max-w-4xl rounded-lg p-6 space-y-6 transition-colors ${
+            theme === "dark"
+              ? "bg-gray-900 text-white"
+              : "bg-white text-gray-900"
+          }`}
+        >
           <Dialog.Title className='text-xl font-semibold'>
             Filtreler
           </Dialog.Title>
@@ -155,7 +163,7 @@ export default function FilterModal({
             <div className='space-y-2'>
               <label className='font-medium'>Filtreler</label>
               <select
-                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
+                className='w-full border rounded px-2 py-1'
                 value={selectedHeader}
                 onChange={handleHeaderSelect}
               >
@@ -167,7 +175,7 @@ export default function FilterModal({
                 ))}
               </select>
               <select
-                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
+                className='w-full border rounded px-2 py-1'
                 value=''
                 onChange={handleValueSelect}
                 disabled={!selectedHeader}
@@ -185,7 +193,7 @@ export default function FilterModal({
             <div className='space-y-2'>
               <label className='font-medium'>Stok</label>
               <select
-                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
+                className='w-full border rounded px-2 py-1'
                 value={selectedWarehouse}
                 onChange={(e) => setSelectedWarehouse(e.target.value)}
               >
@@ -199,14 +207,14 @@ export default function FilterModal({
               <input
                 type='number'
                 placeholder='Minimum Stok'
-                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
+                className='w-full border rounded px-2 py-1'
                 value={minStock}
                 onChange={(e) => setMinStock(e.target.value)}
               />
               <input
                 type='number'
                 placeholder='Maksimum Stok'
-                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
+                className='w-full border rounded px-2 py-1'
                 value={maxStock}
                 onChange={(e) => setMaxStock(e.target.value)}
               />
@@ -227,7 +235,7 @@ export default function FilterModal({
               <input
                 type='text'
                 placeholder='Ürün kodu'
-                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
+                className='w-full border rounded px-2 py-1'
                 value={productCode}
                 onChange={(e) => setProductCode(e.target.value)}
               />
@@ -238,7 +246,7 @@ export default function FilterModal({
             <div className='space-y-2'>
               <label className='font-medium'>Sıralamalar</label>
               <select
-                className='w-full border rounded px-2 py-1 bg-[var(--table-bg)] text-[var(--foreground)]'
+                className='w-full border rounded px-2 py-1'
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
               >
@@ -253,16 +261,20 @@ export default function FilterModal({
           {/* Aktif Filtreler */}
           <div>
             <label className='font-medium'>Uygulanan Kriterler</label>
-            <div className='mt-2 min-h-[2rem] border rounded p-2 bg-[var(--table-header-bg)] text-[var(--foreground)]'>
+            <div
+              className={`mt-2 min-h-[2rem] border rounded p-2 ${
+                theme === "dark"
+                  ? "bg-gray-800 text-white"
+                  : "bg-gray-100 text-gray-900"
+              }`}
+            >
               {Object.entries(selectedFilters).length === 0 &&
               !selectedWarehouse &&
               !minStock &&
               !maxStock &&
               !allSizes &&
               !productCode ? (
-                <p className='text-sm text-gray-500 dark:text-gray-400'>
-                  Henüz kriter seçilmedi.
-                </p>
+                <p className='text-sm text-gray-500'>Henüz kriter seçilmedi.</p>
               ) : (
                 <div className='flex flex-wrap gap-2'>
                   {Object.entries(selectedFilters).flatMap(([hdr, vals]) =>
@@ -274,7 +286,7 @@ export default function FilterModal({
                       return (
                         <span
                           key={hdr + v}
-                          className='group inline-flex items-center bg-[var(--table-border)] text-[var(--foreground)] rounded-full px-3 py-1 text-sm'
+                          className='group inline-flex items-center bg-gray-200 dark:bg-gray-700 text-sm rounded-full px-3 py-1'
                         >
                           <span>
                             {hdr}: {label}
@@ -299,13 +311,19 @@ export default function FilterModal({
           <div className='flex justify-end gap-4'>
             <button
               onClick={handleClear}
-              className='bg-black dark:bg-white text-white dark:text-black px-6 py-2 rounded hover:opacity-90'
+              className={`px-6 py-2 rounded hover:opacity-90 ${
+                theme === "dark" ? "bg-white text-black" : "bg-black text-white"
+              }`}
             >
               Seçimi Temizle
             </button>
             <button
               onClick={handleApply}
-              className='border border-black dark:border-white text-black dark:text-white px-6 py-2 rounded hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition'
+              className={`px-6 py-2 rounded border transition ${
+                theme === "dark"
+                  ? "border-white text-white hover:bg-white hover:text-black"
+                  : "border-black text-black hover:bg-black hover:text-white"
+              }`}
             >
               Ara
             </button>
