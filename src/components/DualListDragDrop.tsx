@@ -24,7 +24,7 @@ import RemoveProductModal from "./RemoveProductModal";
 import { useRemoveModalStore } from "@/lib/useRemoveModalStore";
 import SuccessModal from "./SuccessModal";
 import { useSuccessModalStore } from "@/lib/useSuccessModalStore";
-import { useThemeStore } from "@/lib/themeStore"; // ✅ eklendi
+import { useThemeStore } from "@/lib/themeStore";
 
 interface Props {
   allProducts: Product[];
@@ -59,16 +59,16 @@ export default function DualListDragDrop({
   selectedProducts,
   onUpdateSelected,
 }: Props) {
-  const { theme } = useThemeStore(); // ✅ eklendi
+  const { theme } = useThemeStore();
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 100,
+        delay: 200,
         tolerance: 5,
       },
-    })
+    }),
+    useSensor(PointerSensor)
   );
 
   const [dragged, setDragged] = useState<Product | null>(null);
@@ -115,9 +115,9 @@ export default function DualListDragDrop({
   };
 
   const gridClassMap: { [key: number]: string } = {
-    2: "grid-cols-1 sm:grid-cols-2",
-    3: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3",
-    4: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+    2: "grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2",
+    3: "grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3",
+    4: "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
   };
 
   return (
@@ -126,6 +126,7 @@ export default function DualListDragDrop({
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
       onDragStart={(event) => {
+      
         const id =
           typeof event.active.id === "string"
             ? event.active.id.replace("collection-", "")
@@ -134,24 +135,24 @@ export default function DualListDragDrop({
         if (item) setDragged(item);
       }}
     >
-      <div className='touch-none grid grid-cols-1 md:grid-cols-2 gap-8 items-start'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-8 items-start'>
         {/* Koleksiyon Ürünleri */}
         <div
-          className='sticky top-0 self-start p-4 rounded shadow flex flex-col h-[650px] overflow-hidden'
+          className='p-4 rounded shadow flex flex-col h-[650px] overflow-hidden'
           style={{
             backgroundColor: "var(--table-bg)",
             color: "var(--foreground)",
           }}
         >
           <h2 className='text-lg font-semibold mb-2'>Koleksiyon Ürünleri</h2>
-          <div className='flex-1 overflow-y-auto'>
+          <div className='flex-1 min-h-0 overflow-y-auto'>
             <SortableContext
               items={paginatedCollection.map(
                 (p) => `collection-${p.productCode}`
               )}
               strategy={verticalListSortingStrategy}
             >
-              <div className='touch-none grid grid-cols-2 gap-4'>
+              <div className='grid grid-cols-2 sm:grid-cols-2 gap-4'>
                 {paginatedCollection.map((product) => {
                   const isSelected = selectedProducts.some(
                     (p) => p.productCode === product.productCode
@@ -159,7 +160,7 @@ export default function DualListDragDrop({
                   return (
                     <div
                       key={`collection-${product.productCode}${product.colorCode}`}
-                      className='relative group touch-none'
+                      className='relative group min-h-[220px]'
                     >
                       <SortableProduct product={product} />
                       {isSelected && (
@@ -228,13 +229,13 @@ export default function DualListDragDrop({
               ))}
             </div>
           </div>
-          <div className='flex-1 overflow-y-auto'>
+          <div className='flex-1 min-h-0 overflow-y-auto'>
             <DroppableArea id='constants'>
               <div className={`grid ${gridClassMap[gridCols]} gap-4 mt-2`}>
                 {paginatedConstants.map((product) => (
                   <div
                     key={`constant-${product.productCode}${product.colorCode}`}
-                    className='relative p-2 border rounded shadow group'
+                    className='relative p-2 border rounded shadow group flex flex-col items-center'
                     style={{
                       backgroundColor: "var(--table-bg)",
                       color: "var(--foreground)",
@@ -254,7 +255,7 @@ export default function DualListDragDrop({
                     <img
                       src={product.imageUrl}
                       alt={product.productCode}
-                      className='w-full h-60 object-contain rounded'
+                      className='w-full max-h-52 object-contain rounded'
                     />
                     <p className='text-sm mt-2 text-center break-all'>
                       {product.productCode}
@@ -291,7 +292,7 @@ export default function DualListDragDrop({
       <DragOverlay>
         {dragged && (
           <div
-            className='p-2 border rounded shadow'
+            className='p-2 border rounded shadow max-w-[200px] mx-auto'
             style={{
               backgroundColor: "var(--table-bg)",
               color: "var(--foreground)",
@@ -300,7 +301,7 @@ export default function DualListDragDrop({
             <img
               src={dragged.imageUrl}
               alt={dragged.productCode}
-              className='w-full h-60 object-contain rounded'
+              className='w-full max-h-52 object-contain rounded'
             />
             <p className='text-sm text-center mt-2'>{dragged.productCode}</p>
           </div>

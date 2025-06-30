@@ -3,7 +3,7 @@
 import { useRemoveModalStore } from "@/lib/useRemoveModalStore";
 import { Dialog } from "@headlessui/react";
 import { useSuccessModalStore } from "@/lib/useSuccessModalStore";
-import { useThemeStore } from "@/lib/themeStore"; // ✅ Eklendi
+import { useThemeStore } from "@/lib/themeStore"; 
 
 interface Props {
   onConfirm: (productCode: string) => void;
@@ -11,7 +11,7 @@ interface Props {
 
 export default function RemoveProductModal({ onConfirm }: Props) {
   const { isOpen, closeModal, productToRemove } = useRemoveModalStore();
-  const { theme } = useThemeStore(); // ✅ Tema alındı
+  const { theme } = useThemeStore();
 
   if (!isOpen || !productToRemove) return null;
 

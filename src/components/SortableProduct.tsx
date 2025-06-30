@@ -3,20 +3,21 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Product } from "@/types";
-import { useThemeStore } from "@/lib/themeStore"; 
+import { useThemeStore } from "@/lib/themeStore";
 
 export default function SortableProduct({ product }: { product: Product }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: product.productCode,
+      id: `collection-${product.productCode}`,
     });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    touchAction: "none", 
   };
 
-  const { theme } = useThemeStore(); 
+  const { theme } = useThemeStore();
 
   const backgroundClass =
     theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-900";

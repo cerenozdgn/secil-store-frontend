@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const { remember, setRemember } = useRememberStore();
-  const { theme } = useThemeStore(); // Zustand'dan temayı al
+  const { theme } = useThemeStore(); 
 
   const logoSrc =
     theme === "dark" ? "/secil-logo-lightt.png" : "/secil-store-seeklogo.png";
