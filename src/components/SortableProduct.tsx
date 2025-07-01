@@ -1,3 +1,6 @@
+/**“Ürünleri sıralamak için @dnd-kit kütüphanesinden useSortable kullanıldı. 
+ * Her ürün kartı, sürüklemeye duyarlı hale getirildi. 
+ * Ayrıca, tema değişimine göre arka plan ve yazı renkleri Zustand üzerinden dinamik olarak değiştiriliyor.” */
 "use client";
 
 import { useSortable } from "@dnd-kit/sortable";

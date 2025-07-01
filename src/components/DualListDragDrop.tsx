@@ -75,7 +75,7 @@ export default function DualListDragDrop({
   const { gridCols, setGridCols } = useGridStore();
   const [collectionPage, setCollectionPage] = useState(1);
   const [constantsPage, setConstantsPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 36;
 
   const collectionTotalPages = Math.ceil(allProducts.length / itemsPerPage);
   const constantsTotalPages = Math.ceil(selectedProducts.length / itemsPerPage);
@@ -126,7 +126,6 @@ export default function DualListDragDrop({
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
       onDragStart={(event) => {
-      
         const id =
           typeof event.active.id === "string"
             ? event.active.id.replace("collection-", "")
